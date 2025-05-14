@@ -47,7 +47,7 @@ fi
 
 # Install nebius
 echo "Running nebius installation script..."
-if ! ./src/install-nebius.sh; then
+if ! ./src/install-nebius-cli; then
     echo "Failed to install nebius. Exiting."
     exit 1
 fi

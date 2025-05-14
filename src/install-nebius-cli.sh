@@ -4,7 +4,8 @@
 if ! command -v nebius &> /dev/null; then
     printf "nebius not found. Installing...\n"
     curl -sSL https://storage.eu-north1.nebius.cloud/cli/install.sh | bash
-    
+   
+    sudo ln -s ~/.nebius/bin/nebius /usr/bin/nebius
     printf "nebius successfully installed.\n\n"
 else
     printf "nebius is already installed.\n\n"
