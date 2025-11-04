@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Load config if available
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if [ -f "$ROOT_DIR/config.sh" ]; then
+    source "$ROOT_DIR/config.sh"
+fi
+
 # Check if fish is installed
 if ! command -v fish &> /dev/null; then
     printf "fish not found. Installing...\n"
@@ -10,9 +16,9 @@ else
 fi
 
 # Set a symbolic link to the repo
-ln -s $FISH_DIR ~/.config/fish
+ln -s $FISH_DIR "$CONFIG_DIR/fish"
 
-FISH_CONF=~/.config/fish/config.fish
+FISH_CONF="$FISH_DIR/config.fish"
 
 # Remove default oh-my-posh color theme
 head -n -2 $FISH_CONF > temp_file && mv temp_file $FISH_CONF
@@ -37,17 +43,18 @@ fi
 if ! command -v lsd &> /dev/null; then
   printf "Installing LSD (LSDeluxe)...\n"
 
-  curl -Lo $CONFIG_DIR/lsd-v1.1.5-x86_64-unknown-linux-gnu.tar.gz https://github.com/lsd-rs/lsd/releases/download/v1.1.5/lsd-v1.1.5-x86_64-unknown-linux-gnu.tar.gz
+  curl -Lo $CONFIG_DIR/lsd-v1.1.5-x86_64-unknown-linux-gnu.tar.gz \
+    https://github.com/lsd-rs/lsd/releases/download/v1.1.5/lsd-v1.1.5-x86_64-unknown-linux-gnu.tar.gz
 
-  tar -xzf /home/njm/lsd-v1.1.5-x86_64-unknown-linux-gnu.tar.gz -C $CONFIG_DIR
+  tar -xzf $CONFIG_DIR/lsd-v1.1.5-x86_64-unknown-linux-gnu.tar.gz -C $CONFIG_DIR
 
   sudo mv $CONFIG_DIR/lsd-v1.1.5-x86_64-unknown-linux-gnu/lsd /usr/local/bin/
 
-  rm -rf $CONFIG_DIR/lsd-v1.1.5-x86_64-unknown-linux-gnu.tar.gz $CONFIG_DIR/lsd-v1.1.5-x86_64-unknown-linux-gnu
+  rm -rf $CONFIG_DIR/lsd-v1.1.5-x86_64-unknown-linux-gnu.tar.gz \
+         $CONFIG_DIR/lsd-v1.1.5-x86_64-unknown-linux-gnu
 
-  sudo apt-get -qq update > /dev/null 2>&1 && sudo apt-get -qq install -y lsd > /dev/null 2>&1
-
-  printf "oh-my-posh successfully installed.\n\n"
+  printf "LSD successfully installed.\n\n"
 else
-  printf "oh-my-posh is already installed.\n\n"
+  printf "LSD is already installed.\n\n"
 fi
+

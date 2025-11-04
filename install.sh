@@ -3,6 +3,14 @@
 # Personal Package Archive
 ./src/update-repositories.sh
 
+# Load shared configuration
+if [ -f "./config.sh" ]; then
+    source ./config.sh
+else
+    echo "config.sh not found. Please create it before running install.sh"
+    exit 1
+fi
+
 # Pull dotfiles from GitHub
 echo "Pulling repository from GitHub..."
 if ! ./src/setup-dotfiles.sh; then
