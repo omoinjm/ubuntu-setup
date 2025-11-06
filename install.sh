@@ -39,25 +39,25 @@ if ! ./src/install-neovim.sh; then
     exit 1
 fi
 
-# Install nodejs
-echo "Running nodejs installation script..."
-if ! ./src/install-nodejs.sh; then
-    echo "Failed to install nodejs. Exiting."
-    exit 1
-fi
-
-# Install terraform
-echo "Running terraform installation script..."
-if ! ./src/install-terraform.sh; then
-    echo "Failed to install terraform. Exiting."
-    exit 1
-fi
-
-# Install nebius
-echo "Running nebius installation script..."
-if ! ./src/install-nebius-cli; then
-    echo "Failed to install nebius. Exiting."
-    exit 1
-fi
+## Install nodejs
+#echo "Running nodejs installation script..."
+#if ! ./src/install-nodejs.sh; then
+#    echo "Failed to install nodejs. Exiting."
+#    exit 1
+#fi
+#
+## Install terraform
+#echo "Running terraform installation script..."
+#if ! ./src/install-terraform.sh; then
+#    echo "Failed to install terraform. Exiting."
+#    exit 1
+#fi
+#
+## Install nebius
+#echo "Running nebius installation script..."
+#if ! ./src/install-nebius-cli.sh; then
+#    echo "Failed to install nebius. Exiting."
+#    exit 1
+#fi
 
 echo "Setup complete."

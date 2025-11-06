@@ -18,9 +18,8 @@
       "--privileged"
    ],
    "mounts": [
-      "source=${localEnv:HOME}/.ssh/id_rsa,target=/root/.ssh/id_rsa,type=bind,consistency=cached",
-      "source=${localEnv:HOME}/.ssh/known_hosts,target=/root/.ssh/known_hosts,type=bind,consistency=cached",
+	"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
       "source=ubuntu-setup,target=/commandhistory,type=volume"
    ],
-   "remoteUser": "root"
+   "remoteUser": "vscode"
 }

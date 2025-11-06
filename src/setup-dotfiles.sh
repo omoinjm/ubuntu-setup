@@ -9,19 +9,28 @@ fi
 # --- Ensure CONFIG_DIR exists ---
 if [ ! -d "$CONFIG_DIR" ]; then
     printf "Directory %s does not exist. Creating it now...\n" "$CONFIG_DIR"
-    mkdir -p "$CONFIG_DIR"
+    sudo mkdir -p "$CONFIG_DIR"
     printf "Directory created successfully.\n"
 else
     printf "Directory %s already exists. Skipping creation.\n" "$CONFIG_DIR"
 fi
 
+# --- Ensure DOTFILES_DIR exists (before clone) ---
+if [ ! -d "$DOTFILES_DIR" ]; then
+    printf "Directory %s does not exist. Creating it now...\n" "$DOTFILES_DIR"
+    sudo mkdir -p "$DOTFILES_DIR"
+    printf "Directory created successfully.\n"
+else
+    printf "Directory %s already exists. Skipping creation.\n" "$DOTFILES_DIR"
+fi
+
 # --- Fix permissions ---
-printf "Setting ownership for %s to user %s...\n" "$CONFIG_DIR" "$USER"
-sudo chown -R "$USER:$USER" "$CONFIG_DIR"
-printf "Ownership updated successfully.\n"
+printf "Setting ownership for %s and %s to user %s...\n" "$CONFIG_DIR" "$DOTFILES_DIR" "$USER"
+sudo chown -R "$USER:$USER" "$CONFIG_DIR" "$DOTFILES_DIR"
+printf "Ownership updated successfully.\n\n"
 
 # --- Clone dotfiles repo ---
-if [ ! -d "$DOTFILES_DIR" ]; then
+if [ -d "$DOTFILES_DIR" ]; then
     printf "Cloning dotfiles repository into %s...\n" "$DOTFILES_DIR"
     git clone git@github.com:omoinjm/.dotfiles.git "$DOTFILES_DIR"
     printf "Dotfiles repository cloned successfully.\n\n"
