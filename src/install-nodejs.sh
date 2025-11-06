@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # Check if nodejs is installed
-if ! command -v node &> /dev/null; then
-    printf "nodejs not found. Installing...\n"
-    sudo apt-get -qq install -y nodejs > /dev/null 2>&1
-    printf "nodejs successfully installed.\n\n"
+if ! command -v node &>/dev/null; then
+  printf "nodejs not found. Installing...\n"
+  sudo apt-get -qq install -y nodejs >/dev/null 2>&1
+  printf "nodejs successfully installed.\n\n"
 else
-    printf "nodejs is already installed.\n\n"
+  printf "nodejs is already installed.\n\n"
 fi
 
 # Check if nvm is installed
-if ! command -v nvm &> /dev/null; then
+if ! command -v nvm &>/dev/null; then
   printf "nvm not found. Installing...\n"
 
   # Install for fish shell
@@ -22,5 +22,3 @@ if ! command -v nvm &> /dev/null; then
 else
   printf "nvm is already installed.\n\n"
 fi
-
-

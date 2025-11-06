@@ -5,6 +5,11 @@
    "workspaceFolder": "/workspaces/ubuntu-setup",
    "postCreateCommand": "bash .devcontainer/scripts/post-create-commands.sh",
    "postAttachCommand": "bash .devcontainer/scripts/post-attach-commands.sh",  
+    "forwardPorts": [
+      3000,
+      3001,
+      5173
+   ],
    "customizations": {
       "vscode": {
          "settings": {

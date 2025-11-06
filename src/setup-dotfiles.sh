@@ -3,25 +3,25 @@
 # Load config if available
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 if [ -f "$ROOT_DIR/config.sh" ]; then
-    source "$ROOT_DIR/config.sh"
+  source "$ROOT_DIR/config.sh"
 fi
 
 # --- Ensure CONFIG_DIR exists ---
 if [ ! -d "$CONFIG_DIR" ]; then
-    printf "Directory %s does not exist. Creating it now...\n" "$CONFIG_DIR"
-    sudo mkdir -p "$CONFIG_DIR"
-    printf "Directory created successfully.\n"
+  printf "Directory %s does not exist. Creating it now...\n" "$CONFIG_DIR"
+  sudo mkdir -p "$CONFIG_DIR"
+  printf "Directory created successfully.\n"
 else
-    printf "Directory %s already exists. Skipping creation.\n" "$CONFIG_DIR"
+  printf "Directory %s already exists. Skipping creation.\n" "$CONFIG_DIR"
 fi
 
 # --- Ensure DOTFILES_DIR exists (before clone) ---
 if [ ! -d "$DOTFILES_DIR" ]; then
-    printf "Directory %s does not exist. Creating it now...\n" "$DOTFILES_DIR"
-    sudo mkdir -p "$DOTFILES_DIR"
-    printf "Directory created successfully.\n"
+  printf "Directory %s does not exist. Creating it now...\n" "$DOTFILES_DIR"
+  sudo mkdir -p "$DOTFILES_DIR"
+  printf "Directory created successfully.\n"
 else
-    printf "Directory %s already exists. Skipping creation.\n" "$DOTFILES_DIR"
+  printf "Directory %s already exists. Skipping creation.\n" "$DOTFILES_DIR"
 fi
 
 # --- Fix permissions ---
@@ -31,19 +31,19 @@ printf "Ownership updated successfully.\n\n"
 
 # --- Clone dotfiles repo ---
 if [ -d "$DOTFILES_DIR" ]; then
-    printf "Cloning dotfiles repository into %s...\n" "$DOTFILES_DIR"
-    git clone git@github.com:omoinjm/.dotfiles.git "$DOTFILES_DIR"
-    printf "Dotfiles repository cloned successfully.\n\n"
+  printf "Cloning dotfiles repository into %s...\n" "$DOTFILES_DIR"
+  git clone git@github.com:omoinjm/.dotfiles.git "$DOTFILES_DIR"
+  printf "Dotfiles repository cloned successfully.\n\n"
 else
-    printf "Dotfiles repository already exists. Skipping clone.\n\n"
+  printf "Dotfiles repository already exists. Skipping clone.\n\n"
 fi
 
 # --- Ensure ~/.config exists ---
 if [ ! -d "$HOME/.config" ]; then
-    printf "Config directory not found. Creating directory...\n\n"
-    mkdir -p "$HOME/.config"
+  printf "Config directory not found. Creating directory...\n\n"
+  mkdir -p "$HOME/.config"
 else
-    printf "Config directory already exists.\n\n"
+  printf "Config directory already exists.\n\n"
 fi
 
 printf "Setup completed successfully.\n"
