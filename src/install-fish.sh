@@ -9,7 +9,7 @@ fi
 # Check if fish is installed
 if ! command -v fish &>/dev/null; then
   printf "fish not found. Installing...\n"
-  sudo apt-get -qq install -y fish >/dev/null 2>&1
+  sudo apt-get -qq install -y fish unzip >/dev/null 2>&1
   printf "fish successfully installed.\n\n"
 else
   printf "fish is already installed.\n\n"
