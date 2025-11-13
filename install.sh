@@ -1,63 +1,54 @@
 #!/bin/bash
 
-# Personal Package Archive
-./src/update-repositories.sh
+# Exit on any error
+set -e
 
-# Load shared configuration
-if [ -f "./config.sh" ]; then
-  source ./config.sh
-else
-  echo "config.sh not found. Please create it before running install.sh"
-  exit 1
-fi
+# Source the library scripts
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LIBRARY_DIR="$SCRIPT_DIR/library_scripts"
 
-# Pull dotfiles from GitHub
-echo "Pulling repository from GitHub..."
-if ! ./src/setup-dotfiles.sh; then
-  echo "Failed to pull dotfiles. Exiting."
-  exit 1
-fi
+# Source configuration
+source "$LIBRARY_DIR/config.sh"
+
+# Install options
+INSTALL_TERRAFORM="${INSTALLTERRAFORM:-false}"
+INSTALL_NEBUIS="${INSTALLNEBUIS:-false}"
+
+echo "Starting custom development environment setup..."
+
+# Update repositories
+echo "Updating package repositories..."
+bash "$LIBRARY_DIR/update-repositories.sh"
+
+# Setup dotfiles
+echo "Setting up dotfiles..."
+bash "$LIBRARY_DIR/setup-dotfiles.sh"
 
 # Install tmux
-echo "Running tmux installation script..."
-if ! ./src/install-tmux.sh; then
-  echo "Failed to install tmux. Exiting."
-  exit 1
-fi
+echo "Installing tmux..."
+bash "$LIBRARY_DIR/install-tmux.sh"
 
 # Install fish
-echo "Running fish installation script..."
-if ! ./src/install-fish.sh; then
-  echo "Failed to install fish. Exiting."
-  exit 1
-fi
+echo "Installing fish..."
+bash "$LIBRARY_DIR/install-fish.sh"
 
 # Install neovim
-echo "Running neovim installation script..."
-if ! ./src/install-neovim.sh; then
-  echo "Failed to install neovim. Exiting."
-  exit 1
+echo "Installing neovim..."
+bash "$LIBRARY_DIR/install-neovim.sh"
+
+# Install nodejs
+echo "Installing nodejs..."
+bash "$LIBRARY_DIR/install-nodejs.sh"
+
+# Conditional installations
+if [ "$INSTALL_TERRAFORM" = "true" ]; then
+  echo "Installing terraform..."
+  bash "$LIBRARY_DIR/install-terraform.sh"
 fi
 
-## Install nodejs
-echo "Running nodejs installation script..."
-if ! ./src/install-nodejs.sh; then
-  echo "Failed to install nodejs. Exiting."
-  exit 1
+if [ "$INSTALL_NEBUIS" = "true" ]; then
+  echo "Installing nebius CLI..."
+  bash "$LIBRARY_DIR/install-nebius-cli.sh"
 fi
 
-## Install terraform
-#echo "Running terraform installation script..."
-#if ! ./src/install-terraform.sh; then
-#    echo "Failed to install terraform. Exiting."
-#    exit 1
-#fi
-#
-## Install nebius
-#echo "Running nebius installation script..."
-#if ! ./src/install-nebius-cli.sh; then
-#    echo "Failed to install nebius. Exiting."
-#    exit 1
-#fi
-
-echo "Setup complete."
+echo "Custom development environment setup complete!"

@@ -1,30 +1,21 @@
 {
-   "name": "Debain setup dev container",
-   "dockerFile": "Dockerfile",
-   "context": "..",
-   "workspaceFolder": "/workspaces/ubuntu-setup",
-   "postCreateCommand": "bash .devcontainer/scripts/post-create-commands.sh",
-   "postAttachCommand": "bash .devcontainer/scripts/post-attach-commands.sh",  
-    "forwardPorts": [
-      3000,
-      3001,
-      5173
-   ],
-   "customizations": {
-      "vscode": {
-         "settings": {
-            "terminal.integrated.shell.linux": "/bin/bash" 
-         }
+  "name": "Debain setup dev container",
+  "dockerFile": "Dockerfile",
+  "context": "..",
+  "workspaceFolder": "/workspaces/ubuntu-setup",
+  "postCreateCommand": "bash .devcontainer/scripts/post-create-commands.sh",
+  "postAttachCommand": "bash .devcontainer/scripts/post-attach-commands.sh",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
       }
-   },
-   "runArgs": [
-      "--env-file",
-      ".devcontainer/.env",
-      "--privileged"
-   ],
-   "mounts": [
-	"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
-      "source=ubuntu-setup,target=/commandhistory,type=volume"
-   ],
-   "remoteUser": "vscode"
+    }
+  },
+  "runArgs": ["--env-file", ".devcontainer/.env", "--privileged"],
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
+    "source=ubuntu-setup,target=/commandhistory,type=volume"
+  ],
+  "remoteUser": "vscode"
 }

@@ -1,0 +1,44 @@
+{
+  "name": "Ubuntu Setup",
+  "id": "ubuntu-setup",
+  "version": "1.0.0",
+  "description": "Personal Ubuntu development environment setup with tools like Fish shell, Neovim, Node.js, Terraform, and more",
+  "options": {
+    "dotfilesRepo": {
+      "type": "string",
+      "default": "",
+      "description": "Git repository URL for dotfiles (optional)"
+    },
+    "installFish": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install and configure Fish shell"
+    },
+    "installNeovim": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install Neovim"
+    },
+    "installNodejs": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install Node.js"
+    },
+    "installTerraform": {
+      "type": "boolean",
+      "default": false,
+      "description": "Install Terraform"
+    },
+    "installTmux": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install and configure tmux"
+    },
+    "installNebius": {
+      "type": "boolean",
+      "default": false,
+      "description": "Install Nebius CLI"
+    }
+  },
+  "installsAfter": ["ghcr.io/devcontainers/features/common-utils"]
+}
