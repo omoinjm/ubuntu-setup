@@ -16,7 +16,7 @@ if ! command -v node &> /dev/null; then
     sudo apt-get -qq update > /dev/null 2>&1 && sudo apt-get -qq install -y nodejs > /dev/null 2>&1
     printf "nodejs successfully installed.\n\n"
 else
-    printf "nodejs is already installed.\n\n"
+  printf "nodejs is already installed.\n\n"
 fi
 
 # Verify installation
