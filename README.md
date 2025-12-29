@@ -20,7 +20,7 @@ git clone https://github.com/omoinjm/ubuntu-setup.git
 cd ubuntu-setup
 
 # Make scripts executable
-chmod +x install.sh src/*.sh
+chmod +x install.sh library_scripts/*.sh
 
 # Run the installation
 ./install.sh

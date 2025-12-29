@@ -40,7 +40,7 @@ print_error() {
 
 # Check prerequisites first
 print_section "Checking system prerequisites..."
-if ! ./src/check-prerequisites.sh; then
+if ! ./library_scripts/check-prerequisites.sh; then
     print_error "Prerequisites check failed. Exiting."
     exit 1
 fi
@@ -49,7 +49,7 @@ echo
 
 # Update system repositories
 print_section "Updating system repositories..."
-if ! ./src/update-repositories.sh; then
+if ! ./library_scripts/update-repositories.sh; then
     print_error "Failed to update repositories."
     exit 1
 fi
@@ -58,7 +58,7 @@ echo
 
 # Setup dotfiles
 print_section "Setting up dotfiles..."
-if ! ./src/setup-dotfiles.sh; then
+if ! ./library_scripts/setup-dotfiles.sh; then
     print_error "Failed to setup dotfiles."
     exit 1
 fi
@@ -67,7 +67,7 @@ echo
 
 # Install tmux
 print_section "Installing tmux..."
-if ! ./src/install-tmux.sh; then
+if ! ./library_scripts/install-tmux.sh; then
     print_error "Failed to install tmux."
     exit 1
 fi
@@ -76,7 +76,7 @@ echo
 
 # Install fish
 print_section "Installing Fish shell..."
-if ! ./src/install-fish.sh; then
+if ! ./library_scripts/install-fish.sh; then
     print_error "Failed to install Fish shell."
     exit 1
 fi
@@ -85,7 +85,7 @@ echo
 
 # Install neovim
 print_section "Installing Neovim..."
-if ! ./src/install-neovim.sh; then
+if ! ./library_scripts/install-neovim.sh; then
     print_error "Failed to install Neovim."
     exit 1
 fi
@@ -94,16 +94,25 @@ echo
 
 # Install nodejs
 print_section "Installing Node.js..."
-if ! ./src/install-nodejs.sh; then
+if ! ./library_scripts/install-nodejs.sh; then
     print_error "Failed to install Node.js."
     exit 1
 fi
 print_success "Node.js installed"
 echo
 
+# Install dotnet
+print_section "Installing .NET SDK..."
+if ! ./library_scripts/install-dotnet.sh; then
+    print_error "Failed to install .NET SDK."
+    exit 1
+fi
+print_success ".NET SDK installed"
+echo
+
 # Install terraform
 print_section "Installing Terraform..."
-if ! ./src/install-terraform.sh; then
+if ! ./library_scripts/install-terraform.sh; then
     print_error "Failed to install Terraform."
     exit 1
 fi
@@ -112,7 +121,7 @@ echo
 
 # Install nebius CLI
 print_section "Installing Nebius CLI..."
-if ! ./src/install-nebius-cli.sh; then
+if ! ./library_scripts/install-nebius-cli.sh; then
     print_error "Failed to install Nebius CLI."
     exit 1
 fi
