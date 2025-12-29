@@ -1,55 +1,140 @@
 #!/bin/bash
 
-# Personal Package Archive
-./src/update-repositories.sh
+# Script: install.sh
+# Purpose: Main orchestration script for Ubuntu development environment setup
+# Exit codes: 0 = success, 1 = failure
 
-# Pull dotfiles from GitHub
-echo "Pulling repository from GitHub..."
-if ! ./src/setup-dotfiles.sh; then
-    echo "Failed to pull dotfiles. Exiting."
+set -e
+
+# Source logging functions
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Note: logging will be added in future versions
+# source "$SCRIPT_DIR/lib/logging.sh"
+
+echo "═══════════════════════════════════════════════════════════════════"
+echo "  Ubuntu Development Environment Setup"
+echo "═══════════════════════════════════════════════════════════════════"
+echo
+
+# Color codes for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Function to print section headers
+print_section() {
+    echo -e "${BLUE}→ $1${NC}"
+}
+
+# Function to print success
+print_success() {
+    echo -e "${GREEN}✓ $1${NC}"
+}
+
+# Function to print error
+print_error() {
+    echo -e "${RED}✗ $1${NC}"
+}
+
+# Check prerequisites first
+print_section "Checking system prerequisites..."
+if ! ./src/check-prerequisites.sh; then
+    print_error "Prerequisites check failed. Exiting."
     exit 1
 fi
+print_success "Prerequisites verified"
+echo
+
+# Update system repositories
+print_section "Updating system repositories..."
+if ! ./src/update-repositories.sh; then
+    print_error "Failed to update repositories."
+    exit 1
+fi
+print_success "Repositories updated"
+echo
+
+# Setup dotfiles
+print_section "Setting up dotfiles..."
+if ! ./src/setup-dotfiles.sh; then
+    print_error "Failed to setup dotfiles."
+    exit 1
+fi
+print_success "Dotfiles configured"
+echo
 
 # Install tmux
-echo "Running tmux installation script..."
+print_section "Installing tmux..."
 if ! ./src/install-tmux.sh; then
-    echo "Failed to install tmux. Exiting."
+    print_error "Failed to install tmux."
     exit 1
 fi
+print_success "tmux installed"
+echo
 
 # Install fish
-echo "Running fish installation script..."
+print_section "Installing Fish shell..."
 if ! ./src/install-fish.sh; then
-    echo "Failed to install fish. Exiting."
+    print_error "Failed to install Fish shell."
     exit 1
 fi
+print_success "Fish shell installed"
+echo
 
 # Install neovim
-echo "Running neovim installation script..."
+print_section "Installing Neovim..."
 if ! ./src/install-neovim.sh; then
-    echo "Failed to install neovim. Exiting."
+    print_error "Failed to install Neovim."
     exit 1
 fi
+print_success "Neovim installed"
+echo
 
 # Install nodejs
-echo "Running nodejs installation script..."
+print_section "Installing Node.js..."
 if ! ./src/install-nodejs.sh; then
-    echo "Failed to install nodejs. Exiting."
+    print_error "Failed to install Node.js."
     exit 1
 fi
+print_success "Node.js installed"
+echo
 
 # Install terraform
-echo "Running terraform installation script..."
+print_section "Installing Terraform..."
 if ! ./src/install-terraform.sh; then
-    echo "Failed to install terraform. Exiting."
+    print_error "Failed to install Terraform."
     exit 1
 fi
+print_success "Terraform installed"
+echo
 
-# Install nebius
-echo "Running nebius installation script..."
-if ! ./src/install-nebius-cli; then
-    echo "Failed to install nebius. Exiting."
+# Install nebius CLI
+print_section "Installing Nebius CLI..."
+if ! ./src/install-nebius-cli.sh; then
+    print_error "Failed to install Nebius CLI."
     exit 1
 fi
+print_success "Nebius CLI installed"
+echo
 
-echo "Setup complete."
+echo "═══════════════════════════════════════════════════════════════════"
+echo -e "${GREEN}✓ Setup complete!${NC}"
+echo "═══════════════════════════════════════════════════════════════════"
+echo
+echo "Installed tools:"
+tmux -V 2>/dev/null || echo "  tmux: installation may have failed"
+fish --version 2>/dev/null || echo "  fish: installation may have failed"
+nvim --version | head -1 2>/dev/null || echo "  neovim: installation may have failed"
+node --version 2>/dev/null || echo "  node: installation may have failed"
+terraform version 2>/dev/null | head -1 || echo "  terraform: installation may have failed"
+echo
+echo "Next steps:"
+echo "  1. Verify all tools are installed: tmux -V, fish --version, etc."
+echo "  2. Change default shell: chsh -s /usr/bin/fish"
+echo "  3. Review and update dotfiles configuration"
+echo "═══════════════════════════════════════════════════════════════════"
+echo
+
+exit 0

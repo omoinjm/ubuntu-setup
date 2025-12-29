@@ -1,6 +1,19 @@
 #!/bin/bash
 
-# Check if fish is installed
+# Script: install-fish.sh
+# Purpose: Install and configure Fish shell with enhancements
+# Exit codes: 0 = success, 1 = failure
+
+set -e
+
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}"
+FISH_DIR="$CONFIG_DIR/fish"
+FISH_CONF="$FISH_DIR/config.fish"
+TOOL_NAME="fish"
+
+echo "Installing $TOOL_NAME..."
+
+# Install Fish shell
 if ! command -v fish &> /dev/null; then
     printf "fish not found. Installing...\n"
     sudo apt-get -qq update > /dev/null 2>&1 && sudo apt-get -qq install -y fish > /dev/null 2>&1
@@ -9,45 +22,57 @@ else
     printf "fish is already installed.\n\n"
 fi
 
-# Set a symbolic link to the repo
-ln -s $FISH_DIR ~/.config/fish
+# Verify installation
+if ! fish --version &> /dev/null; then
+    echo "Error: fish installation verification failed."
+    exit 1
+fi
 
-FISH_CONF=~/.config/fish/config.fish
+# Setup dotfiles symlink if it doesn't exist
+if [ -d "$HOME/.dotfiles/fish" ] && [ ! -e "$FISH_DIR" ]; then
+    printf "Linking fish config from dotfiles...\n"
+    ln -s "$HOME/.dotfiles/fish" "$FISH_DIR"
+elif [ ! -d "$FISH_DIR" ]; then
+    printf "Creating fish config directory...\n"
+    mkdir -p "$FISH_DIR"
+fi
 
-# Remove default oh-my-posh color theme
-head -n -2 $FISH_CONF > temp_file && mv temp_file $FISH_CONF
+# Create config file if it doesn't exist
+if [ ! -f "$FISH_CONF" ]; then
+    touch "$FISH_CONF"
+fi
 
-# Setup default theme
-THEME="tonybaloney"
-THEME_URL="https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/$THEME.omp.json"
-TEXT_APPEND="oh-my-posh init fish --config \"$THEME_URL\" | source"
-
-echo "$TEXT_APPEND" | tee -a $FISH_CONF > /dev/null 
+# Backup original config
+cp "$FISH_CONF" "$FISH_CONF.backup" 2>/dev/null || true
 
 # Install oh-my-posh
 if ! command -v oh-my-posh &> /dev/null; then
-  printf "Installing oh-my-posh...\n" 
-  curl -s https://ohmyposh.dev/install.sh | bash -s > /dev/null 2>&1 
-  printf "oh-my-posh successfully installed.\n\n"
+    printf "Installing oh-my-posh...\n"
+    curl -sS https://ohmyposh.dev/install.sh | bash > /dev/null 2>&1
+    printf "oh-my-posh successfully installed.\n\n"
 else
-  printf "oh-my-posh is already installed.\n\n"
+    printf "oh-my-posh is already installed.\n\n"
 fi
 
-# Install lsd (icon files / folders)
+# Setup oh-my-posh theme if not already configured
+if ! grep -q "oh-my-posh" "$FISH_CONF" 2>/dev/null; then
+    THEME="tonybaloney"
+    THEME_URL="https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/$THEME.omp.json"
+    echo "oh-my-posh init fish --config \"$THEME_URL\" | source" >> "$FISH_CONF"
+fi
+
+# Install lsd (enhanced ls)
 if ! command -v lsd &> /dev/null; then
-  printf "Installing LSD (LSDeluxe)...\n"
-
-  curl -Lo $CONFIG_DIR/lsd-v1.1.5-x86_64-unknown-linux-gnu.tar.gz https://github.com/lsd-rs/lsd/releases/download/v1.1.5/lsd-v1.1.5-x86_64-unknown-linux-gnu.tar.gz
-
-  tar -xzf /home/njm/lsd-v1.1.5-x86_64-unknown-linux-gnu.tar.gz -C $CONFIG_DIR
-
-  sudo mv $CONFIG_DIR/lsd-v1.1.5-x86_64-unknown-linux-gnu/lsd /usr/local/bin/
-
-  rm -rf $CONFIG_DIR/lsd-v1.1.5-x86_64-unknown-linux-gnu.tar.gz $CONFIG_DIR/lsd-v1.1.5-x86_64-unknown-linux-gnu
-
-  sudo apt-get -qq update > /dev/null 2>&1 && sudo apt-get -qq install -y lsd > /dev/null 2>&1
-
-  printf "oh-my-posh successfully installed.\n\n"
+    printf "Installing LSD (LSDeluxe)...\n"
+    # Try package manager first
+    if sudo apt-get install -y lsd > /dev/null 2>&1; then
+        printf "lsd installed from repository.\n\n"
+    else
+        printf "lsd package not available, skipping.\n\n"
+    fi
 else
-  printf "oh-my-posh is already installed.\n\n"
+    printf "lsd is already installed.\n\n"
 fi
+
+echo "✓ $TOOL_NAME configured successfully"
+exit 0

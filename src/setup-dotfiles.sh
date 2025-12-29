@@ -1,28 +1,48 @@
 #!/bin/bash
 
-# Check if the directory exists
+# Script: setup-dotfiles.sh
+# Purpose: Clone and setup dotfiles from GitHub repository
+# Exit codes: 0 = success, 1 = failure
+
+set -e
+
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}"
+DOTFILES_DIR="$HOME/.dotfiles"
+DOTFILES_REPO="git@github.com:omoinjm/.dotfiles.git"
+
+echo "Setting up dotfiles..."
+
+# Check if Git is installed
+if ! command -v git &> /dev/null; then
+    echo "Error: Git is required but not installed."
+    exit 1
+fi
+
+# Create config directory if it doesn't exist
 if [ ! -d "$CONFIG_DIR" ]; then
-    printf "Directory %s does not exist. Creating it now...\n" "$CONFIG_DIR"
+    printf "Config directory not found. Creating %s...\n" "$CONFIG_DIR"
     mkdir -p "$CONFIG_DIR"
-    printf "Directory created successfully.\n"
 else
-    printf "Directory %s already exists. Skipping creation.\n" "$CONFIG_DIR"
+    printf "Config directory %s already exists.\n" "$CONFIG_DIR"
 fi
 
-# Change ownership of the directory to the current user
+# Ensure correct ownership
 printf "Setting ownership for %s to user %s...\n" "$CONFIG_DIR" "$USER"
-sudo chown -R "$USER:$USER" "$CONFIG_DIR"
-printf "Ownership updated successfully.\n"
+sudo chown -R "$USER:$USER" "$CONFIG_DIR" 2>/dev/null || true
 
+# Clone dotfiles if they don't exist
 if [ ! -d "$DOTFILES_DIR" ]; then
-    git clone git@github.com:omoinjm/.dotfiles.git "$DOTFILES_DIR"
-    printf "Dotfiles repository cloned successfully.\n\n"
+    printf "Dotfiles not found. Cloning from %s...\n" "$DOTFILES_REPO"
+    if git clone "$DOTFILES_REPO" "$DOTFILES_DIR" 2>/dev/null; then
+        printf "Dotfiles repository cloned successfully.\n\n"
+    else
+        echo "Warning: Could not clone dotfiles repository. This may be expected if the repository is private or unavailable."
+        echo "You can clone it manually later: git clone $DOTFILES_REPO $DOTFILES_DIR"
+    fi
 else
-    printf "Dotfiles repository already exists. Skipping clone.\n\n"
+    printf "Dotfiles repository already exists at %s.\n" "$DOTFILES_DIR"
+    printf "To update, run: git -C %s pull\n\n" "$DOTFILES_DIR"
 fi
 
-# Check if the config directory exists, if not, create it
-if [ ! -d "$HOME/.config" ]; then
-    printf "Config directory not found. Creating directory...\n\n"
-    mkdir -p "$HOME/.config"
-fi
+echo "✓ Dotfiles setup completed"
+exit 0
