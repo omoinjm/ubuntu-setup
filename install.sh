@@ -6,15 +6,8 @@
 
 set -e
 
-# Source logging functions
+# Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Note: logging will be added in future versions
-# source "$SCRIPT_DIR/lib/logging.sh"
-
-echo "═══════════════════════════════════════════════════════════════════"
-echo "  Ubuntu Development Environment Setup"
-echo "═══════════════════════════════════════════════════════════════════"
-echo
 
 # Color codes for output
 RED='\033[0;31m'
@@ -23,25 +16,55 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Function to print section headers
+# Source logging functions
+if [ -f "$SCRIPT_DIR/lib/logging.sh" ]; then
+    source "$SCRIPT_DIR/lib/logging.sh"
+    LOGGING_ENABLED=true
+else
+    LOGGING_ENABLED=false
+fi
+
+# Print section headers
 print_section() {
     echo -e "${BLUE}→ $1${NC}"
 }
 
-# Function to print success
+# Print success
 print_success() {
     echo -e "${GREEN}✓ $1${NC}"
 }
 
-# Function to print error
+# Print error
 print_error() {
     echo -e "${RED}✗ $1${NC}"
 }
 
+# Print header
+echo "═══════════════════════════════════════════════════════════════════"
+echo "  Ubuntu Development Environment Setup"
+echo "═══════════════════════════════════════════════════════════════════"
+echo
+
+# Load configuration
+print_section "Loading configuration..."
+source "$SCRIPT_DIR/library_scripts/config.sh"
+print_success "Configuration loaded"
+echo
+
+# Create required directories
+print_section "Creating required directories..."
+mkdir -p "$CONFIG_DIR" "$DOTFILES_DIR" "$LOG_DIR" "$BIN_DIR"
+sudo chown -R "$USER:$USER" "$CONFIG_DIR" 2>/dev/null || true
+print_success "Directories created"
+echo
+
 # Check prerequisites first
 print_section "Checking system prerequisites..."
-if ! ./library_scripts/check-prerequisites.sh; then
+if ! "$SCRIPT_DIR/library_scripts/check-prerequisites.sh"; then
     print_error "Prerequisites check failed. Exiting."
+    if [ "$LOGGING_ENABLED" = true ]; then
+        end_logging "FAILED" "Prerequisites check failed"
+    fi
     exit 1
 fi
 print_success "Prerequisites verified"
@@ -49,8 +72,11 @@ echo
 
 # Update system repositories
 print_section "Updating system repositories..."
-if ! ./library_scripts/update-repositories.sh; then
+if ! "$SCRIPT_DIR/library_scripts/update-repositories.sh"; then
     print_error "Failed to update repositories."
+    if [ "$LOGGING_ENABLED" = true ]; then
+        end_logging "FAILED" "Failed to update repositories"
+    fi
     exit 1
 fi
 print_success "Repositories updated"
@@ -58,8 +84,11 @@ echo
 
 # Setup dotfiles
 print_section "Setting up dotfiles..."
-if ! ./library_scripts/setup-dotfiles.sh; then
+if ! "$SCRIPT_DIR/library_scripts/setup-dotfiles.sh"; then
     print_error "Failed to setup dotfiles."
+    if [ "$LOGGING_ENABLED" = true ]; then
+        end_logging "FAILED" "Failed to setup dotfiles"
+    fi
     exit 1
 fi
 print_success "Dotfiles configured"
@@ -67,8 +96,11 @@ echo
 
 # Install tmux
 print_section "Installing tmux..."
-if ! ./library_scripts/install-tmux.sh; then
+if ! "$SCRIPT_DIR/library_scripts/install-tmux.sh"; then
     print_error "Failed to install tmux."
+    if [ "$LOGGING_ENABLED" = true ]; then
+        end_logging "FAILED" "Failed to install tmux"
+    fi
     exit 1
 fi
 print_success "tmux installed"
@@ -76,8 +108,11 @@ echo
 
 # Install fish
 print_section "Installing Fish shell..."
-if ! ./library_scripts/install-fish.sh; then
+if ! "$SCRIPT_DIR/library_scripts/install-fish.sh"; then
     print_error "Failed to install Fish shell."
+    if [ "$LOGGING_ENABLED" = true ]; then
+        end_logging "FAILED" "Failed to install Fish shell"
+    fi
     exit 1
 fi
 print_success "Fish shell installed"
@@ -85,65 +120,69 @@ echo
 
 # Install neovim
 print_section "Installing Neovim..."
-if ! ./library_scripts/install-neovim.sh; then
+if ! "$SCRIPT_DIR/library_scripts/install-neovim.sh"; then
     print_error "Failed to install Neovim."
+    if [ "$LOGGING_ENABLED" = true ]; then
+        end_logging "FAILED" "Failed to install Neovim"
+    fi
     exit 1
 fi
 print_success "Neovim installed"
 echo
 
-# Install nodejs
-print_section "Installing Node.js..."
-if ! ./library_scripts/install-nodejs.sh; then
-    print_error "Failed to install Node.js."
+# Install NVM
+print_section "Installing NVM..."
+if ! "$SCRIPT_DIR/library_scripts/install-nvm.sh"; then
+    print_error "Failed to install NVM."
+    if [ "$LOGGING_ENABLED" = true ]; then
+        end_logging "FAILED" "Failed to install NVM"
+    fi
     exit 1
 fi
-print_success "Node.js installed"
+print_success "NVM installed"
 echo
 
-# Install dotnet
-print_section "Installing .NET SDK..."
-if ! ./library_scripts/install-dotnet.sh; then
-    print_error "Failed to install .NET SDK."
-    exit 1
-fi
-print_success ".NET SDK installed"
-echo
+# Install .NET SDK (optional - uncomment if needed)
+# print_section "Installing .NET SDK..."
+# if ! "$SCRIPT_DIR/library_scripts/install-dotnet.sh"; then
+#     print_error "Failed to install .NET SDK."
+#     if [ "$LOGGING_ENABLED" = true ]; then
+#         end_logging "FAILED" "Failed to install .NET SDK"
+#     fi
+#     exit 1
+# fi
+# print_success ".NET SDK installed"
+# echo
 
-# Install terraform
-print_section "Installing Terraform..."
-if ! ./library_scripts/install-terraform.sh; then
-    print_error "Failed to install Terraform."
-    exit 1
-fi
-print_success "Terraform installed"
-echo
-
-# Install nebius CLI
-print_section "Installing Nebius CLI..."
-if ! ./library_scripts/install-nebius-cli.sh; then
-    print_error "Failed to install Nebius CLI."
-    exit 1
-fi
-print_success "Nebius CLI installed"
-echo
-
+# Installation complete
 echo "═══════════════════════════════════════════════════════════════════"
 echo -e "${GREEN}✓ Setup complete!${NC}"
 echo "═══════════════════════════════════════════════════════════════════"
 echo
 echo "Installed tools:"
-tmux -V 2>/dev/null || echo "  tmux: installation may have failed"
-fish --version 2>/dev/null || echo "  fish: installation may have failed"
-nvim --version | head -1 2>/dev/null || echo "  neovim: installation may have failed"
-node --version 2>/dev/null || echo "  node: installation may have failed"
-terraform version 2>/dev/null | head -1 || echo "  terraform: installation may have failed"
+tmux -V 2>/dev/null && print_success "tmux: $(tmux -V)" || echo "  tmux: not found"
+fish --version 2>/dev/null && print_success "fish: $(fish --version)" || echo "  fish: not found"
+nvim --version 2>/dev/null | head -1 && print_success "neovim: $(nvim --version | head -1)" || echo "  neovim: not found"
+if [ -f "$NVM_DIR/nvm.sh" ]; then
+    # shellcheck disable=SC1090
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    nvm --version >/dev/null 2>&1 && print_success "nvm: $(nvm --version)" || echo "  nvm: not loaded"
+    node --version 2>/dev/null && print_success "node: $(node --version)" || echo "  node: not installed (run: nvm install --lts)"
+else
+    echo "  nvm: not found"
+    echo "  node: not found"
+fi
+
 echo
 echo "Next steps:"
-echo "  1. Verify all tools are installed: tmux -V, fish --version, etc."
-echo "  2. Change default shell: chsh -s /usr/bin/fish"
-echo "  3. Review and update dotfiles configuration"
+echo "  1. Set Fish as your default shell: chsh -s /usr/bin/fish"
+echo "  2. Logout and login for changes to take effect"
+echo "  3. Review your dotfiles: ~/.dotfiles"
 echo "═══════════════════════════════════════════════════════════════════"
 echo
+
+if [ "$LOGGING_ENABLED" = true ]; then
+    end_logging "SUCCESS" "Installation completed successfully"
+fi
 
 exit 0

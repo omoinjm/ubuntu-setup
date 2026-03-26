@@ -15,7 +15,7 @@
   "runArgs": ["--env-file", ".devcontainer/.env", "--privileged"],
   "mounts": [
     "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
-    "source=ubuntu-setup,target=/commandhistory,type=volume"
+    "source=ubuntu.setup-bashhistory,target=/commandhistory,type=volume"
   ],
   "remoteUser": "vscode"
 }

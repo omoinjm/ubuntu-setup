@@ -10,6 +10,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.bash_history" \
     && mkdir -p /commandhistory \
     && touch /commandhistory/.bash_history \
-    && chown -R $USERNAME /commandhistory \
-    && echo "$SNIPPET" >> "$HOME/.bashrc"
+    && chown -R $USERNAME:$USERNAME /commandhistory \
+&& echo "$SNIPPET">> "/home/$USERNAME/.bashrc" \
+    && echo "$SNIPPET" >> "/root/.bashrc"
 

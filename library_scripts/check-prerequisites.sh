@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script: src/check-prerequisites.sh
+# Script: check-prerequisites.sh
 # Purpose: Verify system is ready for installation
 # Exit codes: 0 = success, 1 = failure
 
@@ -50,11 +50,12 @@ check_internet() {
     fi
 }
 
-# Check disk space
+# Check disk space (check root filesystem, not just home)
 check_disk_space() {
-    local available=$(df $HOME | awk 'NR==2 {print $4}')
+    # Check root filesystem where packages are installed
+    local available=$(df / | awk 'NR==2 {print $4}')
     local required=$((2000000)) # 2GB in KB
-    
+
     if [ "$available" -gt "$required" ]; then
         local gb=$((available / 1048576))
         echo "✓ Sufficient disk space available (~${gb}GB)"
