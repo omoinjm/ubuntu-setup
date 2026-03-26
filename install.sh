@@ -142,6 +142,18 @@ fi
 print_success "NVM installed"
 echo
 
+# Install fzf
+print_section "Installing fzf (fuzzy finder)..."
+if ! "$SCRIPT_DIR/library_scripts/install-fzf.sh"; then
+    print_error "Failed to install fzf."
+    if [ "$LOGGING_ENABLED" = true ]; then
+        end_logging "FAILED" "Failed to install fzf"
+    fi
+    exit 1
+fi
+print_success "fzf installed"
+echo
+
 # Install .NET SDK (optional - uncomment if needed)
 # print_section "Installing .NET SDK..."
 # if ! "$SCRIPT_DIR/library_scripts/install-dotnet.sh"; then
@@ -171,6 +183,11 @@ if [ -f "$NVM_DIR/nvm.sh" ]; then
 else
     echo "  nvm: not found"
     echo "  node: not found"
+fi
+if [ -x "$HOME/.fzf/bin/fzf" ]; then
+    print_success "fzf: $($HOME/.fzf/bin/fzf --version 2>/dev/null | head -1)"
+else
+    echo "  fzf: not found"
 fi
 
 echo

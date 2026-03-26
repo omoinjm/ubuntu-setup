@@ -206,15 +206,5 @@ else
     printf "LSD is already installed: %s\n\n" "$lsd_version"
 fi
 
-# Install fzf if not already installed
-if [ -d "$HOME/.fzf" ]; then
-    printf "fzf is already installed.\n\n"
-else
-    printf "Installing fzf...\n"
-    sudo git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf > /dev/null 2>&1
-    # sudo ~/.fzf/install > /dev/null 2>&1
-    printf "fzf successfully installed.\n\n"
-fi
-
 echo "✓ fish shell configured successfully"
 exit 0

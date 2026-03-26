@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(bash *)",
-      "Bash(ls *)"
+      "Bash(ls *)",
+      "Bash(chmod *)"
     ]
   },
   "$version": 3
