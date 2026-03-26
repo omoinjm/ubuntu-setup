@@ -154,6 +154,18 @@ fi
 print_success "fzf installed"
 echo
 
+# Install fonts
+print_section "Installing fonts..."
+if ! "$SCRIPT_DIR/library_scripts/install-fonts.sh"; then
+    print_error "Failed to install fonts."
+    if [ "$LOGGING_ENABLED" = true ]; then
+        end_logging "FAILED" "Failed to install fonts"
+    fi
+    exit 1
+fi
+print_success "fonts installed"
+echo
+
 # Install .NET SDK (optional - uncomment if needed)
 # print_section "Installing .NET SDK..."
 # if ! "$SCRIPT_DIR/library_scripts/install-dotnet.sh"; then
@@ -188,6 +200,11 @@ if [ -x "$HOME/.fzf/bin/fzf" ]; then
     print_success "fzf: $($HOME/.fzf/bin/fzf --version 2>/dev/null | head -1)"
 else
     echo "  fzf: not found"
+fi
+if [ -f "$HOME/.local/share/fonts/DroidSansMNerdFont-Regular.otf" ]; then
+    print_success "fonts: Droid Sans Mono Nerd Font installed"
+else
+    echo "  fonts: not found"
 fi
 
 echo
