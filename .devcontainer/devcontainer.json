@@ -1,5 +1,5 @@
 {
-  "name": "Debain setup dev container",
+  "name": "Debian setup dev container",
   "dockerFile": "Dockerfile",
   "context": "..",
   "workspaceFolder": "/workspaces/ubuntu-setup",

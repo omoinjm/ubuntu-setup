@@ -6,6 +6,10 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=library_scripts/config.sh
+source "$SCRIPT_DIR/library_scripts/config.sh"
+
 echo "═══════════════════════════════════════════════════════════════════"
 echo "  Ubuntu Development Environment - Uninstall"
 echo "═══════════════════════════════════════════════════════════════════"
@@ -14,13 +18,22 @@ echo "⚠ Warning: This will uninstall the following tools:"
 echo "  • tmux"
 echo "  • Fish shell"
 echo "  • Neovim"
-echo "  • Node.js"
-echo "  • Terraform"
-echo "  • Nebius CLI"
+echo "  • NVM and Node.js"
+echo "  • fzf"
+echo "  • Nerd Fonts (user install)"
+if [ "$INSTALL_TERRAFORM" = "true" ] || command -v terraform &>/dev/null; then
+    echo "  • Terraform"
+fi
+if [ "$INSTALL_NEBIUS_CLI" = "true" ] || command -v nebius &>/dev/null; then
+    echo "  • Nebius CLI"
+fi
+if [ "$INSTALL_DOTNET" = "true" ] || command -v dotnet &>/dev/null; then
+    echo "  • .NET SDK"
+fi
 echo
-echo "Your dotfiles will NOT be deleted."
+echo "Your dotfiles at $DOTFILES_DIR will NOT be deleted."
 echo
-read -p "Continue with uninstallation? (y/N) " -n 1 -r
+read -r -p "Continue with uninstallation? (y/N) " -n 1 REPLY
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo "Uninstallation cancelled."
@@ -31,47 +44,77 @@ echo
 echo "Uninstalling tools..."
 echo
 
-# Uninstall tmux
-if command -v tmux &> /dev/null; then
-    echo "Uninstalling tmux..."
-    sudo apt-get remove -y tmux > /dev/null 2>&1 && echo "✓ tmux removed" || echo "⚠ Failed to remove tmux"
+remove_apt_package() {
+    local package="$1"
+    local label="${2:-$package}"
+    if dpkg -l "$package" &>/dev/null; then
+        echo "Uninstalling $label..."
+        sudo apt-get remove -y "$package" > /dev/null 2>&1 && echo "✓ $label removed" || echo "⚠ Failed to remove $label"
+    fi
+}
+
+if command -v tmux &>/dev/null; then
+    remove_apt_package tmux tmux
 fi
 
-# Uninstall Fish
-if command -v fish &> /dev/null; then
-    echo "Uninstalling Fish..."
-    sudo apt-get remove -y fish > /dev/null 2>&1 && echo "✓ Fish removed" || echo "⚠ Failed to remove Fish"
+if command -v fish &>/dev/null; then
+    remove_apt_package fish "Fish shell"
 fi
 
-# Uninstall Neovim
-if command -v nvim &> /dev/null; then
-    echo "Uninstalling Neovim..."
-    sudo apt-get remove -y neovim > /dev/null 2>&1 && echo "✓ Neovim removed" || echo "⚠ Failed to remove Neovim"
+if command -v nvim &>/dev/null; then
+    remove_apt_package neovim Neovim
 fi
 
-# Uninstall Node.js
-if command -v node &> /dev/null; then
-    echo "Uninstalling Node.js..."
-    sudo apt-get remove -y nodejs npm > /dev/null 2>&1 && echo "✓ Node.js removed" || echo "⚠ Failed to remove Node.js"
+if [ -d "$NVM_DIR" ]; then
+    echo "Removing NVM..."
+    rm -rf "$NVM_DIR"
+    echo "✓ NVM removed"
 fi
 
-# Uninstall Terraform
-if command -v terraform &> /dev/null; then
-    echo "Uninstalling Terraform..."
-    sudo apt-get remove -y terraform > /dev/null 2>&1 && echo "✓ Terraform removed" || echo "⚠ Failed to remove Terraform"
+if [ -d "$FZF_DIR" ]; then
+    echo "Removing fzf..."
+    rm -rf "$FZF_DIR"
+    rm -f "$HOME/.fzf.bash" "$HOME/.fzf.zsh"
+    echo "✓ fzf removed"
 fi
 
-# Uninstall Nebius
-if command -v nebius &> /dev/null; then
-    echo "Uninstalling Nebius CLI..."
-    # Try to remove the symlink
-    sudo rm -f /usr/bin/nebius 2>/dev/null || true
-    # Remove the binary
-    rm -rf ~/.nebius 2>/dev/null || true
+if [ -f "$HOME/.local/share/fonts/DroidSansMNerdFont-Regular.otf" ]; then
+    echo "Removing Nerd Font..."
+    rm -f "$HOME/.local/share/fonts/DroidSansMNerdFont-Regular.otf"
+    if command -v fc-cache &>/dev/null; then
+        fc-cache -f "$HOME/.local/share/fonts" &>/dev/null || true
+    fi
+    echo "✓ Nerd Font removed"
+fi
+
+if command -v oh-my-posh &>/dev/null; then
+    echo "Removing oh-my-posh..."
+    sudo rm -f /usr/local/bin/oh-my-posh 2>/dev/null || true
+    rm -f "$HOME/.local/bin/oh-my-posh" 2>/dev/null || true
+    echo "✓ oh-my-posh removed"
+fi
+
+if command -v terraform &>/dev/null; then
+    remove_apt_package terraform Terraform
+    sudo rm -f /etc/apt/sources.list.d/hashicorp.list 2>/dev/null || true
+    sudo rm -f /usr/share/keyrings/hashicorp-archive-keyring.gpg 2>/dev/null || true
+fi
+
+if command -v nebius &>/dev/null || [ -d "$HOME/.nebius" ]; then
+    echo "Removing Nebius CLI..."
+    sudo rm -f /usr/bin/nebius /usr/local/bin/nebius 2>/dev/null || true
+    rm -rf "$HOME/.nebius" 2>/dev/null || true
     echo "✓ Nebius CLI removed"
 fi
 
-# Clean up package lists
+if command -v dotnet &>/dev/null; then
+    echo "Removing .NET SDK packages..."
+    mapfile -t dotnet_packages < <(dpkg -l | awk '/^ii\s+dotnet-/ {print $2}')
+    if [ "${#dotnet_packages[@]}" -gt 0 ]; then
+        sudo apt-get remove -y "${dotnet_packages[@]}" > /dev/null 2>&1 && echo "✓ .NET packages removed" || echo "⚠ Failed to remove some .NET packages"
+    fi
+fi
+
 echo "Cleaning up package lists..."
 sudo apt-get autoremove -y > /dev/null 2>&1
 sudo apt-get autoclean -y > /dev/null 2>&1
@@ -82,12 +125,13 @@ echo "✓ Uninstallation complete!"
 echo "═══════════════════════════════════════════════════════════════════"
 echo
 echo "Note: Config directories were preserved:"
-echo "  • ~/.config/fish"
-echo "  • ~/.config/tmux"
-echo "  • ~/.dotfiles (if cloned)"
+echo "  • $FISH_DIR"
+echo "  • $TMUX_DIR"
+echo "  • $NEOVIM_DIR"
+echo "  • $DOTFILES_DIR (if cloned)"
 echo
 echo "To remove these manually:"
-echo "  rm -rf ~/.config/fish ~/.config/tmux ~/.dotfiles"
+echo "  rm -rf $FISH_DIR $TMUX_DIR $NEOVIM_DIR $DOTFILES_DIR"
 echo "═══════════════════════════════════════════════════════════════════"
 echo
 

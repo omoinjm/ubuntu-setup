@@ -41,20 +41,23 @@ check_sudo() {
 
 # Check internet connectivity
 check_internet() {
-    if ping -c 1 8.8.8.8 &> /dev/null; then
+    if curl -fsSL --connect-timeout 5 --max-time 10 https://github.com >/dev/null 2>&1; then
         echo "✓ Internet connectivity confirmed"
         return 0
+    elif ping -c 1 -W 3 8.8.8.8 &> /dev/null; then
+        echo "✓ Internet connectivity confirmed (ICMP only)"
+        return 0
     else
-        echo "⚠ Warning: Could not ping 8.8.8.8 (DNS may be down)"
+        echo "⚠ Warning: Could not verify internet connectivity"
         return 0
     fi
 }
 
 # Check disk space (check root filesystem, not just home)
 check_disk_space() {
-    # Check root filesystem where packages are installed
-    local available=$(df / | awk 'NR==2 {print $4}')
+    local available
     local required=$((2000000)) # 2GB in KB
+    available=$(df / | awk 'NR==2 {print $4}')
 
     if [ "$available" -gt "$required" ]; then
         local gb=$((available / 1048576))
@@ -70,7 +73,8 @@ check_disk_space() {
 # Check if Git is installed
 check_git() {
     if command -v git &> /dev/null; then
-        local version=$(git --version)
+        local version
+        version=$(git --version)
         echo "✓ Git is installed: $version"
         return 0
     else

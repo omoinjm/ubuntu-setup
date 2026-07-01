@@ -1,230 +1,103 @@
-# 🚀 START HERE - Ubuntu Setup Project
+# START HERE - Ubuntu Setup Project
 
-**Welcome!** This is the ubuntu-setup repository after complete implementation of all recommended improvements.
+Welcome to the ubuntu-setup repository.
 
----
-
-## Quick Start (30 seconds)
+## Quick Start
 
 ```bash
-# Clone (if not already here)
 git clone https://github.com/omoinjm/ubuntu-setup.git
 cd ubuntu-setup
 
-# Make executable
-chmod +x install.sh uninstall.sh src/*.sh
+chmod +x install.sh uninstall.sh library_scripts/*.sh scripts/ci-smoke.sh
 
-# Run!
 ./install.sh
 ```
 
----
+Optional tools:
 
-## 📊 What Was Just Improved
-
-**All 24 recommended improvements implemented:**
-- ✅ 6 critical bugs fixed
-- ✅ 4 high-priority features added
-- ✅ 6 medium improvements done
-- ✅ 8 polish items completed
-
-**Status:** Production-ready ✅
-
----
-
-## 📖 Documentation Guide
-
-### For First-Time Users
-Start with these in order:
-1. **README.md** - Overview and quick start
-2. **docs/INSTALLATION_GUIDE.md** - Step-by-step setup
-3. **docs/TROUBLESHOOTING.md** - If something goes wrong
-
-### For Developers
-1. **docs/ARCHITECTURE.md** - How it's built
-2. **docs/ADDING_MODULES.md** - How to add new tools
-3. **docs/AI_CONTEXT.md** - For AI systems analyzing code
-
-### For This Project
-1. **IMPLEMENTATION_SUMMARY.md** - What was improved
-2. **CHANGES.md** - Detailed change log
-3. **docs/IMPROVEMENTS.md** - Full improvements catalog
-
----
-
-## 🎯 What Gets Installed
-
-```
-✓ tmux            - Terminal multiplexer
-✓ Fish shell      - Advanced command-line shell
-✓ Neovim          - Modern text editor
-✓ Node.js         - JavaScript runtime + npm
-✓ Terraform       - Infrastructure-as-code
-✓ Nebius CLI      - Cloud CLI tool
-✓ Dotfiles        - Your personal configs
-```
-
----
-
-## ⚙️ Key Features
-
-### Pre-Installation
-- ✅ System validation (Ubuntu version, disk space, sudo, internet)
-- ✅ Prerequisite checking (git, curl, wget)
-
-### During Installation
-- ✅ Color-coded progress
-- ✅ Clear error messages
-- ✅ Installation verification
-
-### Post-Installation
-- ✅ Tool version display
-- ✅ Next steps guidance
-- ✅ Uninstall capability
-
----
-
-## 🛠️ Usage
-
-### Install Everything
 ```bash
-./install.sh
+INSTALL_TERRAFORM=true INSTALL_NEBIUS_CLI=true ./install.sh
 ```
 
-### Just Check System
-```bash
-./src/check-prerequisites.sh
-```
+## What Gets Installed
 
-### Uninstall Later
-```bash
-./uninstall.sh
-```
+**Core:**
 
----
+- tmux
+- Fish shell (+ oh-my-posh, lsd when available)
+- Neovim (+ ripgrep, fd, lazygit)
+- NVM + Node.js LTS
+- fzf
+- Droid Sans Mono Nerd Font
+- Dotfiles from GitHub
 
-## 📋 Project Structure
+**Optional:**
+
+- Terraform (`INSTALL_TERRAFORM=true`)
+- Nebius CLI (`INSTALL_NEBIUS_CLI=true`)
+- .NET SDK (`INSTALL_DOTNET=true`)
+
+## Documentation Guide
+
+### For first-time users
+
+1. [README.md](../README.md) — Overview and quick start
+2. [INSTALLATION_GUIDE.md](./INSTALLATION_GUIDE.md) — Step-by-step setup
+3. [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) — If something goes wrong
+
+### For developers
+
+1. [ARCHITECTURE.md](./ARCHITECTURE.md) — How it is built
+2. [ADDING_MODULES.md](./ADDING_MODULES.md) — How to add new tools
+3. [AI_CONTEXT.md](./AI_CONTEXT.md) — For AI systems analyzing code
+
+## Project Structure
 
 ```
 .
-├── install.sh                    Main installation script
-├── uninstall.sh                  Uninstall script (new)
-├── README.md                     Quick start guide
-├── START_HERE.md                 This file
-├── CHANGES.md                    Detailed changelog
-├── IMPLEMENTATION_SUMMARY.md     Implementation report
-│
-├── src/                          Installation modules
-│   ├── check-prerequisites.sh    System validation
-│   ├── update-repositories.sh    Add PPAs
-│   ├── setup-dotfiles.sh         Clone configs
-│   ├── install-tmux.sh           Install tmux
-│   ├── install-fish.sh           Install Fish
-│   ├── install-neovim.sh         Install Neovim
-│   ├── install-nodejs.sh         Install Node.js
-│   ├── install-terraform.sh      Install Terraform
-│   └── install-nebius-cli.sh     Install Nebius CLI
-│
-├── lib/                          Utilities
-│   └── logging.sh                Logging functions (new)
-│
-└── docs/                         Documentation
-    ├── README.md                 Doc index
-    ├── OVERVIEW.md               Project overview
-    ├── ARCHITECTURE.md           Technical design
-    ├── INSTALLATION_GUIDE.md     Setup instructions
-    ├── TROUBLESHOOTING.md        Problem solutions
-    ├── ADDING_MODULES.md         Extend with tools
-    ├── IMPROVEMENTS.md           Improvements catalog
-    └── AI_CONTEXT.md             AI system guide
+├── install.sh
+├── uninstall.sh
+├── scripts/ci-smoke.sh
+├── library_scripts/          # Installation modules
+│   ├── config.sh
+│   ├── check-prerequisites.sh
+│   ├── update-repositories.sh
+│   ├── setup-dotfiles.sh
+│   ├── install-tmux.sh
+│   ├── install-fish.sh
+│   ├── install-neovim.sh
+│   ├── install-nvm.sh
+│   ├── install-fzf.sh
+│   ├── install-fonts.sh
+│   ├── install-terraform.sh
+│   ├── install-nebius-cli.sh
+│   └── install-dotnet.sh
+├── lib/logging.sh
+└── docs/
 ```
 
----
+## Usage
 
-## ✅ Quality Assurance
+```bash
+# Full install
+./install.sh
 
-All scripts have been:
-- ✅ Syntax validated (11/11 pass)
-- ✅ Logic reviewed
-- ✅ Tested for dependencies
-- ✅ Error handling added
-- ✅ Documentation created
+# Pre-flight check only
+./library_scripts/check-prerequisites.sh
 
-**Test Results:** All Pass ✅
+# CI smoke tests
+./scripts/ci-smoke.sh
 
----
-
-## 🎯 Before & After
-
-| Aspect | Before | After |
-|--------|--------|-------|
-| Critical Issues | 6 ❌ | 0 ✅ |
-| Works for user 'njm' | Only 'njm' | Any user ✅ |
-| Neovim | Empty script | Complete ✅ |
-| Error Handling | Incomplete | Comprehensive ✅ |
-| Documentation | 1 line | 60+ pages ✅ |
-| Pre-flight Checks | None | Full validation ✅ |
-| Uninstall | None | Complete script ✅ |
-
----
-
-## 🚀 Next Steps
-
-1. **Read README.md** for quick overview
-2. **Run pre-flight check:** `./src/check-prerequisites.sh`
-3. **Start installation:** `./install.sh`
-4. **Follow on-screen guidance**
-5. **Read docs/ for detailed info**
-
----
-
-## 💡 Key Improvements
-
-✨ **Works for any user** (not just 'njm')  
-✨ **Neovim installation fixed** (was empty)  
-✨ **Professional error messages**  
-✨ **System validation before install**  
-✨ **Clean uninstall capability**  
-✨ **Color-coded output**  
-✨ **Comprehensive documentation**  
-✨ **Security best practices**
-
----
-
-## ❓ Questions?
-
-- **Installation issues?** → See `docs/TROUBLESHOOTING.md`
-- **How to extend?** → See `docs/ADDING_MODULES.md`
-- **Technical details?** → See `docs/ARCHITECTURE.md`
-- **What changed?** → See `IMPLEMENTATION_SUMMARY.md`
-
----
-
-## 📞 Support Resources
-
-All documentation is in the `docs/` folder:
-- Installation Guide
-- Architecture Documentation
-- Troubleshooting Guide
-- How to Add Modules
-- AI Context Guide (for developers)
-
----
-
-## ✨ Status
-
-```
-🟢 PRODUCTION READY
+# Uninstall
+./uninstall.sh
 ```
 
-The ubuntu-setup project is fully implemented, tested, documented, and ready for production use.
+## Configuration
 
----
+See `library_scripts/config.sh` or the README for environment variables such as `DOTFILES_REPO`, `DOTFILES_OPTIONAL`, and optional install flags.
 
-**Last Updated:** December 29, 2024  
-**Status:** ✅ All 24 improvements implemented  
-**Quality:** ⭐⭐⭐⭐⭐ Production-grade
+## Support
 
----
-
-**Ready to get started?** Run `./install.sh`
+- Installation issues → [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
+- Extending the project → [ADDING_MODULES.md](./ADDING_MODULES.md)
+- Technical details → [ARCHITECTURE.md](./ARCHITECTURE.md)

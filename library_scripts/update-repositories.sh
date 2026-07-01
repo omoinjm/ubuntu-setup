@@ -36,7 +36,6 @@ add_git_ppa() {
 add_neovim_ppa() {
     echo "Adding Neovim PPA..."
     sudo add-apt-repository -y ppa:neovim-ppa/stable > /dev/null 2>&1
-    sudo add-apt-repository -y ppa:neovim-ppa/unstable > /dev/null 2>&1
 }
 
 # -----------------------------------------------------------------------------

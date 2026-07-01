@@ -47,11 +47,26 @@ get_fzf_version() {
 # Arguments: fzf version (e.g., "v0.70.0")
 # Returns: 0 on success, 1 on failure
 # -----------------------------------------------------------------------------
+detect_fzf_arch() {
+    local machine
+    machine="$(uname -m)"
+    case "$machine" in
+        x86_64|amd64) echo "amd64" ;;
+        aarch64|arm64) echo "arm64" ;;
+        *)
+            echo "Error: Unsupported architecture for fzf: $machine" >&2
+            return 1
+            ;;
+    esac
+}
+
 download_fzf() {
     local version="$1"
+    local arch
     local temp_dir
     temp_dir=$(mktemp -d)
-    local archive_name="fzf-${version#v}-linux_amd64.tar.gz"
+    arch=$(detect_fzf_arch) || return 1
+    local archive_name="fzf-${version#v}-linux_${arch}.tar.gz"
     local download_url="https://github.com/junegunn/fzf/releases/download/${version}/${archive_name}"
 
     printf "Downloading fzf %s...\n" "$version"
@@ -210,25 +225,16 @@ EOF
         fi
     fi
 
-    # Setup fish key bindings
-    if [ -f "$fish_key_bindings" ]; then
-        if ! grep -q "fzf" "$fish_key_bindings" 2>/dev/null; then
-            echo "" >> "$fish_key_bindings"
-            echo "# fzf key bindings" >> "$fish_key_bindings"
-            echo "function fish_user_key_bindings" >> "$fish_key_bindings"
-            echo "  ~/.fzf/bin/fzf --fish | source" >> "$fish_key_bindings"
-            echo "end" >> "$fish_key_bindings"
-            printf "  - Added fzf integration to fish key bindings\n"
-        else
-            printf "  - fzf already configured in fish\n"
-        fi
-    else
+    # Setup fish key bindings (replace file to avoid nested function definitions)
+    if [ ! -f "$fish_key_bindings" ] || ! grep -q "fzf" "$fish_key_bindings" 2>/dev/null; then
         cat > "$fish_key_bindings" << 'EOF'
 function fish_user_key_bindings
   ~/.fzf/bin/fzf --fish | source
 end
 EOF
-        printf "  - Created fish_user_key_bindings.fish with fzf\n"
+        printf "  - Configured fish key bindings for fzf\n"
+    else
+        printf "  - fzf already configured in fish key bindings\n"
     fi
 
     printf "\n"

@@ -8,21 +8,23 @@ This project provides an automated setup script for configuring an Ubuntu Linux 
 
 The `install.sh` script orchestrates the installation and configuration of:
 
-1. **Repository Management** - Updates system package repositories
-2. **Dotfiles** - Pulls personal configuration files from GitHub
-3. **Terminal Multiplexer** - tmux for terminal session management
-4. **Shell** - Fish shell for enhanced command-line experience
-5. **Editor** - Neovim for advanced text editing
-6. **Runtime** - Node.js for JavaScript development
-7. **Infrastructure** - Terraform for infrastructure-as-code
-8. **Cloud CLI** - Nebius CLI for cloud operations
+1. **Repository management** — Updates system package repositories and PPAs
+2. **Dotfiles** — Clones personal configuration files from GitHub
+3. **Terminal multiplexer** — tmux
+4. **Shell** — Fish with oh-my-posh and optional lsd
+5. **Editor** — Neovim with common CLI dependencies
+6. **Runtime** — NVM and Node.js LTS
+7. **Productivity** — fzf fuzzy finder and Nerd Fonts
+8. **Optional** — Terraform, Nebius CLI, and .NET SDK when enabled via env vars
 
 ## Key Features
 
-- **Modular Design** - Each tool has its own installation script
-- **Error Handling** - Scripts exit early if any installation fails
-- **Automated Process** - Single command to set up entire development environment
-- **Reproducible Setup** - Ensures consistent environment across machines
+- **Modular design** — Each tool has its own script in `library_scripts/`
+- **Fail-fast error handling** — Installation stops when a required step fails
+- **Configurable** — Dotfiles URL and optional tools via environment variables
+- **Logged installs** — Writes to `~/.ubuntu-setup-install.log`
+- **CI validated** — GitHub Actions runs smoke tests on every change
+- **Uninstall support** — `uninstall.sh` removes installed components
 
 ## Who Should Use This
 
@@ -36,3 +38,4 @@ The `install.sh` script orchestrates the installation and configuration of:
 - Bash shell
 - Internet connection
 - Sudo privileges
+- curl and git (checked during setup)
