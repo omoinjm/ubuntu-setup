@@ -39,6 +39,8 @@ required_modules=(
     library_scripts/install-nebius-cli.sh
     library_scripts/install-dotnet.sh
     lib/logging.sh
+    lib/progress.sh
+    library_scripts/helpers.sh
 )
 
 for module in "${required_modules[@]}"; do
@@ -57,6 +59,14 @@ test -n "$CONFIG_DIR"
 test -n "$DOTFILES_DIR"
 test -n "$DOTFILES_REPO"
 echo "  config exports look valid"
+
+echo
+echo "==> Progress helpers"
+DISABLE_SPINNER=true
+# shellcheck source=lib/progress.sh
+source lib/progress.sh
+with_spinner "Progress helper check" true
+echo "  progress helpers work"
 
 echo
 echo "==> Executable bit check"

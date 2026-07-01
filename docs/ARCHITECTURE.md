@@ -23,7 +23,8 @@ ubuntu-setup/
 │   ├── install-nebius-cli.sh       # Optional (INSTALL_NEBIUS_CLI=true)
 │   └── install-dotnet.sh           # Optional (INSTALL_DOTNET=true)
 ├── lib/
-│   └── logging.sh                  # Shared logging helpers
+│   ├── logging.sh                  # Shared logging helpers
+│   └── progress.sh                 # Spinner/progress indicators
 ├── .devcontainer/                  # Docker dev container config
 ├── .github/workflows/ci.yml        # GitHub Actions CI
 └── docs/                           # Documentation

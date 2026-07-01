@@ -9,8 +9,11 @@ set -e
 # Load config if available
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 if [ -f "$ROOT_DIR/library_scripts/config.sh" ]; then
+    # shellcheck source=library_scripts/config.sh
     source "$ROOT_DIR/library_scripts/config.sh"
 fi
+# shellcheck source=library_scripts/helpers.sh
+source "$ROOT_DIR/library_scripts/helpers.sh"
 
 # NVM version to install (pinned for reproducibility)
 NVM_VERSION="v0.40.4"
@@ -40,7 +43,7 @@ download_nvm_install_script() {
     local version="$1"
     local install_script="$NVM_DIR/install.sh"
 
-    curl -fsSL -o "$install_script" "https://raw.githubusercontent.com/nvm-sh/nvm/${version}/install.sh"
+    run_curl "Downloading NVM ${version}" -fsSL -o "$install_script" "https://raw.githubusercontent.com/nvm-sh/nvm/${version}/install.sh"
 
     if [ ! -s "$install_script" ]; then
         echo "Error: Failed to download NVM install script"
@@ -58,10 +61,7 @@ download_nvm_install_script() {
 install_nvm() {
     local install_script="$NVM_DIR/install.sh"
 
-    # Run the install script silently
-    bash "$install_script" > /dev/null 2>&1
-
-    # Clean up install script
+    with_spinner "Installing NVM" bash "$install_script"
     rm -f "$install_script"
 
     printf "nvm successfully installed.\n\n"
@@ -139,8 +139,7 @@ if ! verify_nvm_installation; then
 fi
 
 # Install latest LTS version of Node.js
-echo "Installing latest LTS version of Node.js..."
-nvm install --lts
+with_spinner "Installing Node.js LTS via NVM" nvm install --lts
 
 # Display version information
 echo

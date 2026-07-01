@@ -9,6 +9,8 @@ set -e
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=library_scripts/config.sh
 source "$ROOT_DIR/library_scripts/config.sh"
+# shellcheck source=library_scripts/helpers.sh
+source "$ROOT_DIR/library_scripts/helpers.sh"
 
 echo "Setting up dotfiles..."
 
@@ -33,7 +35,7 @@ clone_repo() {
     local repo_url="$1"
     local dest="$2"
 
-    git clone "$repo_url" "$dest"
+    run_git_clone "Cloning dotfiles repository" "$repo_url" "$dest"
 }
 
 handle_clone_failure() {

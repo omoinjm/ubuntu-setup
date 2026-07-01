@@ -9,11 +9,14 @@ set -e
 # Load config if available
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 if [ -f "$ROOT_DIR/library_scripts/config.sh" ]; then
+    # shellcheck source=library_scripts/config.sh
     source "$ROOT_DIR/library_scripts/config.sh"
 else
     CONFIG_DIR="${HOME}/.config"
     FISH_DIR="$CONFIG_DIR/fish"
 fi
+# shellcheck source=library_scripts/helpers.sh
+source "$ROOT_DIR/library_scripts/helpers.sh"
 
 # oh-my-posh theme configuration
 OH_MY_POSH_THEME="tonybaloney"
@@ -36,8 +39,8 @@ check_fish_installed() {
 # -----------------------------------------------------------------------------
 install_fish() {
     printf "fish not found. Installing...\n"
-    sudo apt-get -qq update > /dev/null 2>&1
-    sudo apt-get -qq install -y fish unzip > /dev/null 2>&1
+    run_apt "Updating package lists" -qq update
+    run_apt "Installing Fish shell" -qq install -y fish unzip
     printf "fish successfully installed.\n\n"
 }
 
@@ -128,7 +131,7 @@ check_oh_my_posh_installed() {
 # -----------------------------------------------------------------------------
 install_oh_my_posh() {
     printf "Installing oh-my-posh...\n"
-    if curl -sS https://ohmyposh.dev/install.sh | bash > /dev/null 2>&1; then
+    if with_spinner "Installing oh-my-posh" bash -c 'curl -fsSL https://ohmyposh.dev/install.sh | bash'; then
         printf "oh-my-posh successfully installed.\n\n"
         return 0
     else
@@ -154,8 +157,7 @@ check_lsd_installed() {
 install_lsd() {
     printf "Installing LSD (LSDeluxe)...\n"
 
-    # Try package manager first
-    if sudo apt-get -qq install -y lsd > /dev/null 2>&1; then
+    if run_apt "Installing LSD" -qq install -y lsd; then
         printf "LSD installed from repository.\n\n"
         return 0
     else

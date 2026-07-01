@@ -23,6 +23,7 @@ The `install.sh` script orchestrates the installation and configuration of:
 - **Fail-fast error handling** — Installation stops when a required step fails
 - **Configurable** — Dotfiles URL and optional tools via environment variables
 - **Logged installs** — Writes to `~/.ubuntu-setup-install.log`
+- **Progress spinners** — Animated indicators for long-running install steps
 - **CI validated** — GitHub Actions runs smoke tests on every change
 - **Uninstall support** — `uninstall.sh` removes installed components
 

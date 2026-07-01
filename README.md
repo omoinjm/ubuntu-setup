@@ -56,6 +56,7 @@ Environment variables (see `library_scripts/config.sh`):
 | `INSTALL_TERRAFORM` | `false` | Install Terraform |
 | `INSTALL_NEBIUS_CLI` | `false` | Install Nebius CLI |
 | `INSTALL_DOTNET` | `false` | Install .NET SDK |
+| `DISABLE_SPINNER` | `false` | Disable animated progress spinners (auto-disabled in CI) |
 
 ## Documentation
 

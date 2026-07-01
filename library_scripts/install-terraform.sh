@@ -6,6 +6,10 @@
 
 set -e
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=library_scripts/helpers.sh
+source "$ROOT_DIR/library_scripts/helpers.sh"
+
 TOOL_NAME="terraform"
 
 echo "Installing $TOOL_NAME..."
@@ -16,12 +20,13 @@ if command -v terraform &>/dev/null; then
 fi
 
 if ! command -v gpg &>/dev/null; then
-    sudo apt-get -qq update > /dev/null 2>&1
-    sudo apt-get -qq install -y gnupg software-properties-common > /dev/null 2>&1
+    run_apt "Installing GPG tools" -qq update
+    run_apt "Installing GPG tools" -qq install -y gnupg software-properties-common
 fi
 
 if [ ! -f /usr/share/keyrings/hashicorp-archive-keyring.gpg ]; then
-    curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+    with_spinner "Adding HashiCorp GPG key" bash -c \
+        'curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg'
 fi
 
 if [ ! -f /etc/apt/sources.list.d/hashicorp.list ]; then
@@ -29,8 +34,8 @@ if [ ! -f /etc/apt/sources.list.d/hashicorp.list ]; then
         | sudo tee /etc/apt/sources.list.d/hashicorp.list > /dev/null
 fi
 
-sudo apt-get -qq update > /dev/null 2>&1
-sudo apt-get -qq install -y terraform > /dev/null 2>&1
+run_apt "Refreshing package lists" -qq update
+run_apt "Installing Terraform" -qq install -y terraform
 
 if ! command -v terraform &>/dev/null; then
     echo "Error: terraform installation verification failed."

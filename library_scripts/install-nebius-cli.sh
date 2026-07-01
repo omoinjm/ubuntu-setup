@@ -6,6 +6,10 @@
 
 set -e
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=library_scripts/helpers.sh
+source "$ROOT_DIR/library_scripts/helpers.sh"
+
 TOOL_NAME="nebius"
 INSTALLER_URL="https://storage.eu-north1.nebius.cloud/cli/install.sh"
 
@@ -24,7 +28,7 @@ fi
 installer_script=$(mktemp)
 trap 'rm -f "$installer_script"' EXIT
 
-if ! curl -fsSL "$INSTALLER_URL" -o "$installer_script"; then
+if ! run_curl "Downloading Nebius CLI installer" -fsSL "$INSTALLER_URL" -o "$installer_script"; then
     echo "Error: Failed to download Nebius CLI installer."
     exit 1
 fi
@@ -34,7 +38,7 @@ if [ ! -s "$installer_script" ]; then
     exit 1
 fi
 
-bash "$installer_script"
+with_spinner "Installing Nebius CLI" bash "$installer_script"
 
 if ! command -v nebius &>/dev/null; then
     echo "Error: nebius installation verification failed."

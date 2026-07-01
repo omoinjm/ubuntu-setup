@@ -12,6 +12,8 @@ LIB_DIR="$SCRIPT_DIR/library_scripts"
 # Source logging functions
 # shellcheck source=lib/logging.sh
 source "$SCRIPT_DIR/lib/logging.sh"
+# shellcheck source=lib/progress.sh
+source "$SCRIPT_DIR/lib/progress.sh"
 init_logging
 
 fail_step() {
@@ -23,9 +25,15 @@ fail_step() {
 run_step() {
     local label="$1"
     local script="$2"
+    local exit_code=0
 
     section "$label"
+    spinner_start "$label"
     if ! "$script"; then
+        exit_code=$?
+    fi
+    spinner_stop "$exit_code"
+    if [ "$exit_code" -ne 0 ]; then
         fail_step "$label failed."
     fi
     success "$label completed"

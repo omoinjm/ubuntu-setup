@@ -9,8 +9,11 @@ set -e
 # Load config if available
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 if [ -f "$ROOT_DIR/library_scripts/config.sh" ]; then
+    # shellcheck source=library_scripts/config.sh
     source "$ROOT_DIR/library_scripts/config.sh"
 fi
+# shellcheck source=library_scripts/helpers.sh
+source "$ROOT_DIR/library_scripts/helpers.sh"
 
 # fzf version to install (pinned for reproducibility)
 FZF_VERSION="v0.70.0"
@@ -72,7 +75,7 @@ download_fzf() {
     printf "Downloading fzf %s...\n" "$version"
 
     # Download the archive
-    if ! curl -fsSL -o "$temp_dir/$archive_name" "$download_url"; then
+    if ! run_curl "Downloading fzf ${version}" -fsSL -o "$temp_dir/$archive_name" "$download_url"; then
         echo "Error: Failed to download fzf from GitHub"
         rm -rf "$temp_dir"
         return 1
