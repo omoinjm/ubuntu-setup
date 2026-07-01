@@ -68,7 +68,6 @@ Environment variables (see `library_scripts/config.sh`):
 
 For more information, see the [docs/](docs/) folder:
 
-- **[START_HERE.md](docs/START_HERE.md)** — Onboarding guide
 - **[OVERVIEW.md](docs/OVERVIEW.md)** — Project details and features
 - **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Technical architecture
 - **[INSTALLATION_GUIDE.md](docs/INSTALLATION_GUIDE.md)** — Detailed setup instructions
