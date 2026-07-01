@@ -4,291 +4,162 @@ Common issues and solutions when using the ubuntu-setup installation script.
 
 ## Installation Script Issues
 
-### Permission Denied Error
+### Permission denied
 
 **Problem:** `bash: ./install.sh: Permission denied`
 
 **Solution:**
+
 ```bash
-chmod +x install.sh src/*.sh
+chmod +x install.sh uninstall.sh library_scripts/*.sh scripts/ci-smoke.sh
 ./install.sh
 ```
 
-### Command Not Found
+### Command not found
 
 **Problem:** `./install.sh: command not found`
 
-**Cause:** Script being run with wrong interpreter
-
 **Solution:**
+
 ```bash
 bash ./install.sh
-# or
-chmod +x install.sh
-./install.sh
 ```
 
-### Scripts Stop Unexpectedly
-
-**Problem:** Installation stops at a certain step
+### Scripts stop unexpectedly
 
 **Diagnosis:**
-1. Read the error message carefully
-2. Note which script failed (e.g., "Failed to install tmux")
-3. Check the specific troubleshooting section below
 
-**Recovery:**
-```bash
-# Fix the identified issue
-# Then rerun the full script
-./install.sh
-```
+1. Read the error message and check `~/.ubuntu-setup-install.log`
+2. Note which step failed (for example, "Installing Neovim failed")
+3. Run the individual module to reproduce:
+
+   ```bash
+   ./library_scripts/install-neovim.sh
+   ```
+
+**Recovery:** Fix the issue, then re-run `./install.sh` (modules are idempotent).
 
 ## Tool-Specific Issues
 
-### tmux Installation Fails
+### tmux
 
-**Problem:** `sudo: unable to execute ./src/install-tmux.sh: Permission denied`
-
-**Solution:**
 ```bash
-chmod +x src/install-tmux.sh
-./install.sh
-```
-
-**Problem:** `E: Unable to locate package tmux`
-
-**Solution:**
-```bash
+chmod +x library_scripts/install-tmux.sh
 sudo apt-get update
-./install.sh
+./library_scripts/install-tmux.sh
 ```
 
-### Fish Shell Installation Issues
+### Fish shell
 
-**Problem:** `fish: command not found` after installation
-
-**Cause:** Fish not in PATH or installation incomplete
-
-**Solution:**
 ```bash
-# Reinstall fish
 sudo apt-get remove fish
-./src/install-fish.sh
-
-# Add to PATH if needed
-export PATH="/usr/bin/fish:$PATH"
-```
-
-**Problem:** Want to use Fish as default shell
-
-**Solution:**
-```bash
+./library_scripts/install-fish.sh
 chsh -s /usr/bin/fish
-# Logout and login for changes to take effect
 ```
 
-### Neovim Installation Issues
+### Neovim
 
-**Problem:** `command not found: nvim`
-
-**Solution:**
 ```bash
 sudo apt-get update
 sudo apt-get install -y neovim
+ls ~/.config/nvim
+./library_scripts/setup-dotfiles.sh
 ```
 
-**Problem:** Plugins not loading
+### Node.js / NVM
 
-**Cause:** Configuration file missing or incorrect location
+Node is installed via NVM, not apt.
 
-**Solution:**
 ```bash
-# Check if config exists
-ls ~/.config/nvim/init.vim
-
-# If missing, should be in dotfiles
-# Ensure setup-dotfiles.sh ran successfully
-./src/setup-dotfiles.sh
-```
-
-### Node.js Installation Issues
-
-**Problem:** `node: command not found` after installation
-
-**Solution:**
-```bash
-# Check installation
-npm --version
+source ~/.nvm/nvm.sh
+nvm install --lts
 node --version
-
-# If not found, reinstall
-sudo apt-get remove nodejs npm
-./src/install-nodejs.sh
 ```
 
-**Problem:** npm permission issues when installing packages
+If NVM is missing:
 
-**Solution:**
 ```bash
-# Fix npm permissions
-mkdir ~/.npm-global
-npm config set prefix '~/.npm-global'
-export PATH=~/.npm-global/bin:$PATH
+./library_scripts/install-nvm.sh
 ```
 
-### Terraform Installation Issues
+### fzf
 
-**Problem:** `terraform: command not found`
-
-**Solution:**
 ```bash
-# Verify installation
+export PATH="$HOME/.fzf/bin:$PATH"
+~/.fzf/bin/fzf --version
+./library_scripts/install-fzf.sh
+```
+
+On ARM systems, fzf downloads the correct `linux_arm64` binary automatically.
+
+### Terraform (optional)
+
+```bash
+INSTALL_TERRAFORM=true ./install.sh
+# or
+./library_scripts/install-terraform.sh
 terraform --version
-
-# If not installed
-./src/install-terraform.sh
-
-# Check PATH
-echo $PATH | grep terraform
 ```
 
-**Problem:** Terraform not in PATH
+### Nebius CLI (optional)
 
-**Solution:**
 ```bash
-# Add terraform location to PATH
-export PATH="/usr/local/bin:$PATH"
-
-# Make permanent by adding to shell config
-echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.bashrc
-```
-
-### Nebius CLI Issues
-
-**Problem:** `nebius: command not found`
-
-**Solution:**
-```bash
-# Check if installation succeeded
-which nebius
-
-# Reinstall
-./src/install-nebius-cli.sh
-```
-
-**Problem:** Authentication errors with Nebius
-
-**Cause:** Credentials not configured
-
-**Solution:**
-```bash
+INSTALL_NEBIUS_CLI=true ./install.sh
+# or
+./library_scripts/install-nebius-cli.sh
 nebius configure
-# Follow prompts to enter credentials
 ```
 
 ## Dotfiles Issues
 
-### Dotfiles Clone Fails
+### Clone fails
 
-**Problem:** `fatal: repository not found`
+**Problem:** `fatal: repository not found` or authentication errors
 
-**Cause:** GitHub repository URL incorrect or inaccessible
+**Solutions:**
 
-**Solution:**
-1. Verify the dotfiles repository URL is correct
-2. Ensure you have access to the repository
-3. Check internet connection
-4. For private repos, ensure SSH keys are configured:
-   ```bash
-   ssh-keyscan github.com >> ~/.ssh/known_hosts
-   ```
-
-**Problem:** Permission denied (publickey)
-
-**Cause:** SSH key not configured or incorrect
-
-**Solution:**
-```bash
-# Generate SSH key if needed
-ssh-keygen -t ed25519 -C "your-email@example.com"
-
-# Add to GitHub at https://github.com/settings/keys
-
-# Test connection
-ssh -T git@github.com
-```
+1. Override the repo URL: `DOTFILES_REPO=https://github.com/you/dotfiles.git ./install.sh`
+2. For private repos, configure SSH keys and test with `ssh -T git@github.com`
+3. To continue without dotfiles: `DOTFILES_OPTIONAL=true ./install.sh`
 
 ## System-Level Issues
 
-### Insufficient Disk Space
+### Insufficient disk space
 
-**Problem:** `No space left on device`
-
-**Diagnosis:**
 ```bash
 df -h
-du -sh ~/
+sudo apt-get clean
+sudo apt-get autoremove
 ```
 
-**Solution:**
-1. Free up disk space
-2. Remove unnecessary packages: `sudo apt-get clean`
-3. Remove old kernels: `sudo apt-get autoremove`
-4. Retry installation
+### Network issues
 
-### Sudo Password Prompts
-
-**Problem:** Repeated password prompts during installation
-
-**Cause:** Normal behavior - password needed for package installation
-
-**Solution:** Enter your password when prompted. To avoid repeated prompts:
 ```bash
-sudo -v  # Update sudo credentials
-./install.sh  # Run immediately after
-```
-
-### Network Connection Issues
-
-**Problem:** Installation hangs or times out
-
-**Cause:** Network connectivity problems or package repository down
-
-**Solution:**
-```bash
-# Check internet connection
-ping 8.8.8.8
-
-# Check DNS
+curl -I https://github.com
 nslookup github.com
-
-# Use different package mirror if apt is slow
-sudo nano /etc/apt/sources.list  # Change to different mirror
 ```
 
-## Getting Help
-
-If issues persist:
-
-1. **Check logs** - Review output from the failed script
-2. **Search online** - Error message often leads to solutions
-3. **Check tool documentation** - Visit official docs for the failing tool
-4. **Create an issue** - Report reproducible problems
-
-### Collecting Debug Information
+### Sudo password prompts
 
 ```bash
-# Get system info
+sudo -v
+./install.sh
+```
+
+## Development / CI
+
+Run smoke tests locally:
+
+```bash
+./scripts/ci-smoke.sh
+```
+
+## Collecting debug information
+
+```bash
 uname -a
 lsb_release -a
-
-# Check Ubuntu version
-cat /etc/ubuntu-release
-
-# List installed packages
-dpkg -l | grep -E 'tmux|fish|neovim|nodejs|terraform'
-
-# Check available disk space
+cat ~/.ubuntu-setup-install.log
+dpkg -l | grep -E 'tmux|fish|neovim|terraform'
 df -h
 ```

@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'cursor/**'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Ensure scripts are executable
+        run: chmod +x install.sh uninstall.sh scripts/ci-smoke.sh library_scripts/*.sh lib/*.sh
+
+      - name: Run smoke tests
+        run: ./scripts/ci-smoke.sh
+
+      - name: Run prerequisites check
+        run: ./library_scripts/check-prerequisites.sh

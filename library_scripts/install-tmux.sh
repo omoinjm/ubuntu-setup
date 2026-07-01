@@ -9,11 +9,11 @@ set -e
 # Load config if available
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 if [ -f "$ROOT_DIR/library_scripts/config.sh" ]; then
+    # shellcheck source=library_scripts/config.sh
     source "$ROOT_DIR/library_scripts/config.sh"
-else
-    CONFIG_DIR="${HOME}/.config"
-    TMUX_DIR="$CONFIG_DIR/tmux"
 fi
+# shellcheck source=library_scripts/helpers.sh
+source "$ROOT_DIR/library_scripts/helpers.sh"
 
 echo "Installing tmux..."
 
@@ -33,8 +33,8 @@ check_tmux_installed() {
 # -----------------------------------------------------------------------------
 install_tmux_package() {
     printf "tmux not found. Installing...\n"
-    sudo apt-get -qq update > /dev/null 2>&1
-    sudo apt-get -qq install -y tmux > /dev/null 2>&1
+    run_apt "Installing tmux" -qq update
+    run_apt "Installing tmux package" -qq install -y tmux
     printf "tmux successfully installed.\n\n"
 }
 

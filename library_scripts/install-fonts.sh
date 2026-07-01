@@ -9,8 +9,11 @@ set -e
 # Load config if available
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 if [ -f "$ROOT_DIR/library_scripts/config.sh" ]; then
+    # shellcheck source=library_scripts/config.sh
     source "$ROOT_DIR/library_scripts/config.sh"
 fi
+# shellcheck source=library_scripts/helpers.sh
+source "$ROOT_DIR/library_scripts/helpers.sh"
 
 # Font configuration
 FONT_NAME="Droid Sans Mono Nerd Font"
@@ -55,7 +58,7 @@ download_font() {
     printf "Downloading %s...\n" "$FONT_NAME"
 
     # Download the font file
-    if ! curl -fsSL -o "$temp_dir/$FONT_FILE" "$url"; then
+    if ! run_download "Downloading ${FONT_NAME}" "$url" "$temp_dir/$FONT_FILE"; then
         echo "Error: Failed to download font from GitHub"
         rm -rf "$temp_dir"
         return 1

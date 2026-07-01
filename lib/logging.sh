@@ -17,11 +17,13 @@ export LOG_FILE="${LOG_FILE:-$HOME/.ubuntu-setup-install.log}"
 # Initialize log file
 init_logging() {
     mkdir -p "$(dirname "$LOG_FILE")"
-    echo "=== Ubuntu Setup Installation Log ===" >> "$LOG_FILE"
-    echo "Date: $(date)" >> "$LOG_FILE"
-    echo "User: $USER" >> "$LOG_FILE"
-    echo "System: $(uname -a)" >> "$LOG_FILE"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >> "$LOG_FILE"
+    {
+        echo "=== Ubuntu Setup Installation Log ==="
+        echo "Date: $(date)"
+        echo "User: $USER"
+        echo "System: $(uname -a)"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    } >> "$LOG_FILE"
 }
 
 # Log a message
@@ -29,8 +31,9 @@ log_message() {
     local level="$1"
     shift
     local message="$*"
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    
+    local timestamp
+    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+
     echo "[$timestamp] [$level] $message" >> "$LOG_FILE"
 }
 
@@ -55,11 +58,16 @@ warn() {
     log_message "WARN" "$message"
 }
 
-# Print error message (console + log) and exit
-error() {
+# Print error message (console + log) without exiting
+log_error() {
     local message="$*"
     echo -e "${RED}✗ $message${NC}" >&2
     log_message "ERROR" "$message"
+}
+
+# Print error message (console + log) and exit
+error() {
+    log_error "$*"
     exit 1
 }
 
@@ -67,10 +75,7 @@ error() {
 section() {
     local message="$*"
     echo
-    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${BLUE}  $message${NC}"
-    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo
+    echo -e "${BLUE}→ $message${NC}"
     log_message "SECTION" "$message"
 }
 
@@ -83,9 +88,10 @@ command_exists() {
 verify_tool() {
     local tool="$1"
     local version_cmd="${2:-$tool --version}"
-    
+
     if command_exists "$tool"; then
-        local version=$(eval "$version_cmd" 2>/dev/null || echo "unknown")
+        local version
+        version=$(eval "$version_cmd" 2>/dev/null || echo "unknown")
         success "$tool installed: $version"
         log_message "VERIFY" "$tool: $version"
         return 0
@@ -96,23 +102,23 @@ verify_tool() {
     fi
 }
 
-# End logging with summary
+# End logging with summary (does not exit on failure)
 end_logging() {
     local status="$1"
     local message="${2:-Installation completed}"
-    
-    echo >> "$LOG_FILE"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >> "$LOG_FILE"
-    echo "Status: $status" >> "$LOG_FILE"
-    echo "End Time: $(date)" >> "$LOG_FILE"
-    echo "Log file saved to: $LOG_FILE" >> "$LOG_FILE"
-    
+
+    {
+        echo
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "Status: $status"
+        echo "End Time: $(date)"
+        echo "Log file saved to: $LOG_FILE"
+    } >> "$LOG_FILE"
+
     if [ "$status" = "SUCCESS" ]; then
         success "$message"
         info "Full log saved to: $LOG_FILE"
     else
-        error "$message (see log: $LOG_FILE)"
+        log_error "$message (see log: $LOG_FILE)"
     fi
 }
-
-export -f log_message info success warn error section command_exists verify_tool end_logging init_logging

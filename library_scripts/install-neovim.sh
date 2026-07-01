@@ -9,18 +9,20 @@ set -e
 # Load config if available
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 if [ -f "$ROOT_DIR/library_scripts/config.sh" ]; then
+    # shellcheck source=library_scripts/config.sh
     source "$ROOT_DIR/library_scripts/config.sh"
 else
     CONFIG_DIR="${HOME}/.config"
     NEOVIM_DIR="$CONFIG_DIR/nvim"
 fi
+# shellcheck source=library_scripts/helpers.sh
+source "$ROOT_DIR/library_scripts/helpers.sh"
 
 echo "Installing Neovim and dependencies..."
 
-# Function to check and install packages
 install_package() {
     local package_name="$1"
-    local install_cmd="$2"
+    local apt_package="$2"
     local check_cmd="${3:-$package_name}"
 
     if command -v "$check_cmd" &>/dev/null; then
@@ -29,7 +31,7 @@ install_package() {
         printf "%s is already installed: %s\n" "$package_name" "$version"
     else
         printf "%s not found. Installing...\n" "$package_name"
-        if eval "$install_cmd"; then
+        if run_apt "Installing $package_name" -qq install -y "$apt_package"; then
             printf "%s installation completed.\n" "$package_name"
         else
             printf "Warning: Failed to install %s\n" "$package_name"
@@ -37,14 +39,12 @@ install_package() {
     fi
 }
 
-# Update before installing
-sudo apt-get -qq update > /dev/null 2>&1
+run_apt "Updating package lists" -qq update
 
-# Install dependencies
-install_package "lazygit" "sudo apt-get -qq install -y lazygit > /dev/null 2>&1"
-install_package "gcc" "sudo apt-get -qq install -y gcc > /dev/null 2>&1"
-install_package "ripgrep" "sudo apt-get -qq install -y ripgrep > /dev/null 2>&1" "rg"
-install_package "fd-find" "sudo apt-get -qq install -y fd-find > /dev/null 2>&1" "fdfind"
+install_package "lazygit" "lazygit"
+install_package "gcc" "gcc"
+install_package "ripgrep" "ripgrep" "rg"
+install_package "fd-find" "fd-find" "fdfind"
 
 # Create symlink for fd (Ubuntu/Debian package installs as fdfind)
 if command -v fdfind &>/dev/null && ! command -v fd &>/dev/null; then
@@ -68,7 +68,7 @@ printf "\n"
 # Check if neovim is installed
 if ! command -v nvim &>/dev/null; then
     printf "neovim not found. Installing...\n"
-    sudo apt-get -qq install -y neovim > /dev/null 2>&1
+    run_apt "Installing Neovim" -qq install -y neovim
     printf "neovim successfully installed.\n\n"
 else
     nvim_version=$(nvim --version 2>/dev/null | head -1 || echo "unknown")

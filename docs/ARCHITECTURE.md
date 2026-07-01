@@ -5,18 +5,30 @@
 ```
 ubuntu-setup/
 ├── install.sh                      # Main entry point - orchestrates installation
-├── src/                            # Installation scripts
-│   ├── update-repositories.sh      # Update system package lists
+├── uninstall.sh                    # Remove installed tools
+├── scripts/
+│   └── ci-smoke.sh                 # CI smoke tests (syntax, shellcheck, structure)
+├── library_scripts/                # Installation modules
+│   ├── config.sh                   # Shared configuration and feature flags
+│   ├── check-prerequisites.sh      # Pre-flight system validation
+│   ├── update-repositories.sh      # Update apt and add PPAs
 │   ├── setup-dotfiles.sh           # Clone dotfiles from GitHub
-│   ├── install-tmux.sh             # Terminal multiplexer
-│   ├── install-fish.sh             # Advanced shell
-│   ├── install-neovim.sh           # Text editor
-│   ├── install-nodejs.sh           # JavaScript runtime
-│   ├── install-terraform.sh        # Infrastructure-as-code tool
-│   └── install-nebius-cli.sh       # Cloud CLI
+│   ├── install-tmux.sh
+│   ├── install-fish.sh
+│   ├── install-neovim.sh
+│   ├── install-nvm.sh
+│   ├── install-fzf.sh
+│   ├── install-fonts.sh
+│   ├── install-pv.sh                 # Optional pipe viewer (INSTALL_PV=true, default)
+│   ├── install-terraform.sh        # Optional (INSTALL_TERRAFORM=true)
+│   ├── install-nebius-cli.sh       # Optional (INSTALL_NEBIUS_CLI=true)
+│   └── install-dotnet.sh           # Optional (INSTALL_DOTNET=true)
+├── lib/
+│   ├── logging.sh                  # Shared logging helpers
+│   └── progress.sh                 # Spinner/progress indicators
 ├── .devcontainer/                  # Docker dev container config
-├── docs/                           # Documentation
-└── LICENSE                         # Project license
+├── .github/workflows/ci.yml        # GitHub Actions CI
+└── docs/                           # Documentation
 ```
 
 ## Execution Flow
@@ -24,56 +36,55 @@ ubuntu-setup/
 ```
 install.sh (main script)
     │
+    ├─→ init_logging (lib/logging.sh)
+    ├─→ config.sh
+    ├─→ check-prerequisites.sh
     ├─→ update-repositories.sh
-    │   └─→ Updates apt package lists
-    │
+    ├─→ install-pv.sh                 (if INSTALL_PV=true, default)
     ├─→ setup-dotfiles.sh
-    │   └─→ Clones GitHub dotfiles repo
-    │
     ├─→ install-tmux.sh
-    │   └─→ Installs tmux and dependencies
-    │
     ├─→ install-fish.sh
-    │   └─→ Installs Fish shell and configs
-    │
     ├─→ install-neovim.sh
-    │   └─→ Installs Neovim and plugins
-    │
-    ├─→ install-nodejs.sh
-    │   └─→ Installs Node.js and npm
-    │
-    ├─→ install-terraform.sh
-    │   └─→ Installs Terraform
-    │
-    └─→ install-nebius-cli.sh
-        └─→ Installs Nebius CLI tool
+    ├─→ install-nvm.sh
+    ├─→ install-fzf.sh
+    ├─→ install-fonts.sh
+    ├─→ install-terraform.sh          (if INSTALL_TERRAFORM=true)
+    ├─→ install-nebius-cli.sh       (if INSTALL_NEBIUS_CLI=true)
+    └─→ install-dotnet.sh           (if INSTALL_DOTNET=true)
 
-Success: All installations complete
+Success: All installations complete, log written to ~/.ubuntu-setup-install.log
 ```
 
 ## Module Design Pattern
 
-Each installation script (`src/*.sh`) follows this pattern:
+Each installation script in `library_scripts/` follows this pattern:
 
-1. **Check Prerequisites** - Verify dependencies are available
-2. **Install Package** - Use appropriate package manager (apt, npm, etc.)
-3. **Configure** - Set up configuration files or environment variables
-4. **Verify Installation** - Test that the tool works
-5. **Report Status** - Return appropriate exit codes
+1. **Load config** — Source `config.sh` for paths and flags
+2. **Check prerequisites** — Verify dependencies are available
+3. **Install package** — Use apt, curl, or vendor installers
+4. **Configure** — Symlink dotfiles or write shell integration
+5. **Verify installation** — Test that the tool works
+6. **Report status** — Return exit code 0 (success) or 1 (failure)
 
 ## Error Handling Strategy
 
-- **Fail Fast** - Main script stops if any module fails
-- **Exit Codes** - Scripts use exit code 1 for failure, 0 for success
-- **User Feedback** - Echo messages before each installation step
+- **Fail fast** — Main script stops if any required module fails
+- **Optional modules** — Controlled by environment variables in `config.sh`
+- **Dotfiles** — Clone failure exits unless `DOTFILES_OPTIONAL=true`
+- **Exit codes** — Scripts use 0 for success, 1 for failure
+- **Logging** — `install.sh` writes structured logs via `lib/logging.sh`
 
 ## Dependencies
 
 ### External
-- Ubuntu/Debian package system
-- Git (for cloning dotfiles)
-- Package managers: apt, npm, etc.
+
+- Ubuntu/Debian package system (`apt`, `add-apt-repository`)
+- Git and curl for downloads and dotfiles
+- HashiCorp apt repo (Terraform, when enabled)
+- GitHub releases (fzf, NVM, Nerd Fonts)
 
 ### Internal
-- All scripts source a common directory context
-- Scripts assume sequential execution order
+
+- All modules source `library_scripts/config.sh`
+- `install.sh` orchestrates modules in dependency order
+- Dotfiles are cloned before tool modules that symlink configs

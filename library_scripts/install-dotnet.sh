@@ -6,26 +6,18 @@
 
 set -e
 
-# .NET SDK versions to install
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=library_scripts/helpers.sh
+source "$ROOT_DIR/library_scripts/helpers.sh"
+
 DOTNET_VERSIONS=("10.0" "9.0" "8.0")
 
 echo "Installing .NET SDK and runtime..."
 
-# -----------------------------------------------------------------------------
-# Function: check_dotnet_installed
-# Description: Check if dotnet command is available
-# Returns: 0 if installed, 1 otherwise
-# -----------------------------------------------------------------------------
 check_dotnet_installed() {
     command -v dotnet &>/dev/null
 }
 
-# -----------------------------------------------------------------------------
-# Function: install_dotnet_sdks
-# Description: Install specified .NET SDK versions
-# Arguments: Array of version strings (e.g., "10.0" "9.0" "8.0")
-# Returns: 0 on success, 1 on failure
-# -----------------------------------------------------------------------------
 install_dotnet_sdks() {
     local versions=("$@")
     local packages=()
@@ -35,17 +27,11 @@ install_dotnet_sdks() {
     done
 
     printf "Installing .NET SDKs: %s...\n" "${packages[*]}"
-    sudo apt-get -qq update > /dev/null 2>&1
-    sudo apt-get -qq install -y "${packages[@]}" > /dev/null 2>&1
+    run_apt "Updating package lists for .NET" -qq update
+    run_apt "Installing .NET SDKs" -qq install -y "${packages[@]}"
     printf ".NET SDKs successfully installed.\n"
 }
 
-# -----------------------------------------------------------------------------
-# Function: install_dotnet_runtimes
-# Description: Install ASP.NET Core and .NET runtime libraries
-# Arguments: Array of version strings
-# Returns: 0 on success, 1 on failure
-# -----------------------------------------------------------------------------
 install_dotnet_runtimes() {
     local versions=("$@")
     local aspnet_packages=()
@@ -57,42 +43,23 @@ install_dotnet_runtimes() {
     done
 
     printf "Installing ASP.NET Core runtimes...\n"
-    sudo apt-get -qq install -y "${aspnet_packages[@]}" > /dev/null 2>&1
+    run_apt "Installing ASP.NET Core runtimes" -qq install -y "${aspnet_packages[@]}"
     printf "ASP.NET Core runtimes installed.\n"
 
     printf "Installing .NET runtimes...\n"
-    sudo apt-get -qq install -y "${runtime_packages[@]}" > /dev/null 2>&1
+    run_apt "Installing .NET runtimes" -qq install -y "${runtime_packages[@]}"
     printf ".NET runtimes installed.\n"
 }
 
-# -----------------------------------------------------------------------------
-# Function: install_dependencies
-# Description: Install required system dependencies for .NET
-# Returns: 0 on success
-# -----------------------------------------------------------------------------
 install_dependencies() {
     printf "Installing zlib1g dependency...\n"
-    sudo apt-get -qq install -y zlib1g > /dev/null 2>&1
+    run_apt "Installing zlib1g" -qq install -y zlib1g
 }
 
-# -----------------------------------------------------------------------------
-# Function: verify_installation
-# Description: Verify dotnet is installed and working
-# Returns: 0 if verification passes, 1 otherwise
-# -----------------------------------------------------------------------------
 verify_installation() {
-    if dotnet --version &>/dev/null; then
-        return 0
-    else
-        return 1
-    fi
+    dotnet --version &>/dev/null
 }
 
-# -----------------------------------------------------------------------------
-# Main execution
-# -----------------------------------------------------------------------------
-
-# Check if dotnet is already installed
 if check_dotnet_installed; then
     printf "dotnet is already installed (version: %s)\n\n" "$(dotnet --version)"
 else
@@ -101,11 +68,9 @@ else
     echo
 fi
 
-# Install dependencies
 install_dependencies
 echo
 
-# Verify installation
 if ! verify_installation; then
     echo "Error: dotnet installation verification failed."
     exit 1

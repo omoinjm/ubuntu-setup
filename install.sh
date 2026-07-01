@@ -6,217 +6,156 @@
 
 set -e
 
-# Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LIB_DIR="$SCRIPT_DIR/library_scripts"
+SHOW_PLAN_ONLY=false
 
-# Color codes for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+for arg in "$@"; do
+    case "$arg" in
+        --show-plan)
+            SHOW_PLAN_ONLY=true
+            ;;
+        -h|--help)
+            echo "Usage: ./install.sh [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  --show-plan    Print the installation plan and exit"
+            echo ""
+            echo "Environment variables: see library_scripts/config.sh and README.md"
+            exit 0
+            ;;
+    esac
+done
 
 # Source logging functions
-if [ -f "$SCRIPT_DIR/lib/logging.sh" ]; then
-    source "$SCRIPT_DIR/lib/logging.sh"
-    LOGGING_ENABLED=true
-else
-    LOGGING_ENABLED=false
-fi
+# shellcheck source=lib/logging.sh
+source "$SCRIPT_DIR/lib/logging.sh"
+# shellcheck source=lib/progress.sh
+source "$SCRIPT_DIR/lib/progress.sh"
+init_logging
 
-# Print section headers
-print_section() {
-    echo -e "${BLUE}→ $1${NC}"
+fail_step() {
+    local message="$1"
+    end_logging "FAILED" "$message"
+    exit 1
 }
 
-# Print success
-print_success() {
-    echo -e "${GREEN}✓ $1${NC}"
+run_step() {
+    local label="$1"
+    local script="$2"
+    local exit_code=0
+    local step_start=$SECONDS
+
+    section "$label"
+    announce_command "$script"
+    spinner_start "$label"
+    if ! "$script"; then
+        exit_code=$?
+    fi
+    spinner_stop "$exit_code"
+    if [ "$exit_code" -ne 0 ]; then
+        fail_step "$label failed."
+    fi
+    success "$label completed ($(format_elapsed $((SECONDS - step_start))))"
+    echo
 }
 
-# Print error
-print_error() {
-    echo -e "${RED}✗ $1${NC}"
-}
-
-# Print header
 echo "═══════════════════════════════════════════════════════════════════"
 echo "  Ubuntu Development Environment Setup"
 echo "═══════════════════════════════════════════════════════════════════"
 echo
 
-# Load configuration
-print_section "Loading configuration..."
-source "$SCRIPT_DIR/library_scripts/config.sh"
-print_success "Configuration loaded"
+section "Loading configuration..."
+# shellcheck source=library_scripts/config.sh
+source "$LIB_DIR/config.sh"
+success "Configuration loaded"
 echo
 
-# Create required directories
-print_section "Creating required directories..."
+# shellcheck source=library_scripts/install-plan.sh
+source "$LIB_DIR/install-plan.sh"
+print_install_plan
+
+if [ "$SHOW_PLAN_ONLY" = true ]; then
+    info "Plan only mode (--show-plan). Exiting without installing."
+    exit 0
+fi
+
+section "Creating required directories..."
 mkdir -p "$CONFIG_DIR" "$DOTFILES_DIR" "$LOG_DIR" "$BIN_DIR"
 sudo chown -R "$USER:$USER" "$CONFIG_DIR" 2>/dev/null || true
-print_success "Directories created"
+success "Directories created"
 echo
 
-# Check prerequisites first
-print_section "Checking system prerequisites..."
-if ! "$SCRIPT_DIR/library_scripts/check-prerequisites.sh"; then
-    print_error "Prerequisites check failed. Exiting."
-    if [ "$LOGGING_ENABLED" = true ]; then
-        end_logging "FAILED" "Prerequisites check failed"
-    fi
-    exit 1
+run_step "Checking system prerequisites" "$LIB_DIR/check-prerequisites.sh"
+run_step "Updating system repositories" "$LIB_DIR/update-repositories.sh"
+run_step "Installing pv (pipe viewer)" "$LIB_DIR/install-pv.sh"
+run_step "Setting up dotfiles" "$LIB_DIR/setup-dotfiles.sh"
+run_step "Installing tmux" "$LIB_DIR/install-tmux.sh"
+run_step "Installing Fish shell" "$LIB_DIR/install-fish.sh"
+run_step "Installing Neovim" "$LIB_DIR/install-neovim.sh"
+run_step "Installing NVM" "$LIB_DIR/install-nvm.sh"
+run_step "Installing fzf (fuzzy finder)" "$LIB_DIR/install-fzf.sh"
+run_step "Installing fonts" "$LIB_DIR/install-fonts.sh"
+
+if [ "$INSTALL_TERRAFORM" = "true" ]; then
+    run_step "Installing Terraform" "$LIB_DIR/install-terraform.sh"
 fi
-print_success "Prerequisites verified"
-echo
 
-# Update system repositories
-print_section "Updating system repositories..."
-if ! "$SCRIPT_DIR/library_scripts/update-repositories.sh"; then
-    print_error "Failed to update repositories."
-    if [ "$LOGGING_ENABLED" = true ]; then
-        end_logging "FAILED" "Failed to update repositories"
-    fi
-    exit 1
+if [ "$INSTALL_NEBIUS_CLI" = "true" ]; then
+    run_step "Installing Nebius CLI" "$LIB_DIR/install-nebius-cli.sh"
 fi
-print_success "Repositories updated"
-echo
 
-# Setup dotfiles
-print_section "Setting up dotfiles..."
-if ! "$SCRIPT_DIR/library_scripts/setup-dotfiles.sh"; then
-    print_error "Failed to setup dotfiles."
-    if [ "$LOGGING_ENABLED" = true ]; then
-        end_logging "FAILED" "Failed to setup dotfiles"
-    fi
-    exit 1
+if [ "$INSTALL_DOTNET" = "true" ]; then
+    run_step "Installing .NET SDK" "$LIB_DIR/install-dotnet.sh"
 fi
-print_success "Dotfiles configured"
-echo
 
-# Install tmux
-print_section "Installing tmux..."
-if ! "$SCRIPT_DIR/library_scripts/install-tmux.sh"; then
-    print_error "Failed to install tmux."
-    if [ "$LOGGING_ENABLED" = true ]; then
-        end_logging "FAILED" "Failed to install tmux"
-    fi
-    exit 1
-fi
-print_success "tmux installed"
-echo
-
-# Install fish
-print_section "Installing Fish shell..."
-if ! "$SCRIPT_DIR/library_scripts/install-fish.sh"; then
-    print_error "Failed to install Fish shell."
-    if [ "$LOGGING_ENABLED" = true ]; then
-        end_logging "FAILED" "Failed to install Fish shell"
-    fi
-    exit 1
-fi
-print_success "Fish shell installed"
-echo
-
-# Install neovim
-print_section "Installing Neovim..."
-if ! "$SCRIPT_DIR/library_scripts/install-neovim.sh"; then
-    print_error "Failed to install Neovim."
-    if [ "$LOGGING_ENABLED" = true ]; then
-        end_logging "FAILED" "Failed to install Neovim"
-    fi
-    exit 1
-fi
-print_success "Neovim installed"
-echo
-
-# Install NVM
-print_section "Installing NVM..."
-if ! "$SCRIPT_DIR/library_scripts/install-nvm.sh"; then
-    print_error "Failed to install NVM."
-    if [ "$LOGGING_ENABLED" = true ]; then
-        end_logging "FAILED" "Failed to install NVM"
-    fi
-    exit 1
-fi
-print_success "NVM installed"
-echo
-
-# Install fzf
-print_section "Installing fzf (fuzzy finder)..."
-if ! "$SCRIPT_DIR/library_scripts/install-fzf.sh"; then
-    print_error "Failed to install fzf."
-    if [ "$LOGGING_ENABLED" = true ]; then
-        end_logging "FAILED" "Failed to install fzf"
-    fi
-    exit 1
-fi
-print_success "fzf installed"
-echo
-
-# Install fonts
-print_section "Installing fonts..."
-if ! "$SCRIPT_DIR/library_scripts/install-fonts.sh"; then
-    print_error "Failed to install fonts."
-    if [ "$LOGGING_ENABLED" = true ]; then
-        end_logging "FAILED" "Failed to install fonts"
-    fi
-    exit 1
-fi
-print_success "fonts installed"
-echo
-
-# Install .NET SDK (optional - uncomment if needed)
-# print_section "Installing .NET SDK..."
-# if ! "$SCRIPT_DIR/library_scripts/install-dotnet.sh"; then
-#     print_error "Failed to install .NET SDK."
-#     if [ "$LOGGING_ENABLED" = true ]; then
-#         end_logging "FAILED" "Failed to install .NET SDK"
-#     fi
-#     exit 1
-# fi
-# print_success ".NET SDK installed"
-# echo
-
-# Installation complete
 echo "═══════════════════════════════════════════════════════════════════"
-echo -e "${GREEN}✓ Setup complete!${NC}"
+success "Setup complete!"
 echo "═══════════════════════════════════════════════════════════════════"
 echo
 echo "Installed tools:"
-tmux -V 2>/dev/null && print_success "tmux: $(tmux -V)" || echo "  tmux: not found"
-fish --version 2>/dev/null && print_success "fish: $(fish --version)" || echo "  fish: not found"
-nvim --version 2>/dev/null | head -1 && print_success "neovim: $(nvim --version | head -1)" || echo "  neovim: not found"
+if tmux -V &>/dev/null; then success "tmux: $(tmux -V)"; else warn "tmux: not found"; fi
+if fish --version &>/dev/null; then success "fish: $(fish --version)"; else warn "fish: not found"; fi
+if nvim --version &>/dev/null; then success "neovim: $(nvim --version | head -1)"; else warn "neovim: not found"; fi
 if [ -f "$NVM_DIR/nvm.sh" ]; then
-    # shellcheck disable=SC1090
+    # shellcheck disable=SC1090,SC1091
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    nvm --version >/dev/null 2>&1 && print_success "nvm: $(nvm --version)" || echo "  nvm: not loaded"
-    node --version 2>/dev/null && print_success "node: $(node --version)" || echo "  node: not installed (run: nvm install --lts)"
+    if command -v nvm &>/dev/null; then success "nvm: $(nvm --version)"; else warn "nvm: not loaded"; fi
+    if node --version &>/dev/null; then success "node: $(node --version)"; else warn "node: not installed (run: nvm install --lts)"; fi
 else
-    echo "  nvm: not found"
-    echo "  node: not found"
+    warn "nvm: not found"
+    warn "node: not found"
 fi
-if [ -x "$HOME/.fzf/bin/fzf" ]; then
-    print_success "fzf: $($HOME/.fzf/bin/fzf --version 2>/dev/null | head -1)"
+if [ -x "$FZF_DIR/bin/fzf" ]; then
+    success "fzf: $("$FZF_DIR/bin/fzf" --version 2>/dev/null | head -1)"
 else
-    echo "  fzf: not found"
+    warn "fzf: not found"
 fi
 if [ -f "$HOME/.local/share/fonts/DroidSansMNerdFont-Regular.otf" ]; then
-    print_success "fonts: Droid Sans Mono Nerd Font installed"
+    success "fonts: Droid Sans Mono Nerd Font installed"
 else
-    echo "  fonts: not found"
+    warn "fonts: not found"
+fi
+if [ "$INSTALL_TERRAFORM" = "true" ]; then
+    if terraform --version &>/dev/null; then success "terraform: $(terraform --version | head -1)"; else warn "terraform: not found"; fi
+fi
+if [ "$INSTALL_NEBIUS_CLI" = "true" ]; then
+    if nebius --version &>/dev/null; then success "nebius: $(nebius --version 2>/dev/null)"; else warn "nebius: not found"; fi
+fi
+if [ "$INSTALL_DOTNET" = "true" ]; then
+    if dotnet --version &>/dev/null; then success "dotnet: $(dotnet --version 2>/dev/null)"; else warn "dotnet: not found"; fi
 fi
 
 echo
 echo "Next steps:"
 echo "  1. Set Fish as your default shell: chsh -s /usr/bin/fish"
 echo "  2. Logout and login for changes to take effect"
-echo "  3. Review your dotfiles: ~/.dotfiles"
+echo "  3. Review your dotfiles: $DOTFILES_DIR"
+if [ "$INSTALL_TERRAFORM" != "true" ] || [ "$INSTALL_NEBIUS_CLI" != "true" ]; then
+    echo "  4. Optional tools: set INSTALL_TERRAFORM=true or INSTALL_NEBIUS_CLI=true and re-run"
+fi
 echo "═══════════════════════════════════════════════════════════════════"
 echo
 
-if [ "$LOGGING_ENABLED" = true ]; then
-    end_logging "SUCCESS" "Installation completed successfully"
-fi
-
+end_logging "SUCCESS" "Installation completed successfully"
 exit 0

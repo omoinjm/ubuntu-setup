@@ -6,6 +6,10 @@
 
 set -e
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=library_scripts/helpers.sh
+source "$ROOT_DIR/library_scripts/helpers.sh"
+
 echo "Updating system package repositories..."
 
 # -----------------------------------------------------------------------------
@@ -14,58 +18,32 @@ echo "Updating system package repositories..."
 # Returns: 0 on success, 1 on failure
 # -----------------------------------------------------------------------------
 install_prerequisites() {
-    sudo apt-get -qq update > /dev/null 2>&1
-    sudo apt-get -qq install -y software-properties-common > /dev/null 2>&1
+    run_apt "Updating package lists" -qq update
+    run_apt "Installing repository tools" -qq install -y software-properties-common
 }
 
-# -----------------------------------------------------------------------------
-# Function: add_git_ppa
-# Description: Add Git core PPA for latest Git version
-# Returns: 0 on success
-# -----------------------------------------------------------------------------
 add_git_ppa() {
     echo "Adding Git PPA..."
-    sudo add-apt-repository -y ppa:git-core/ppa > /dev/null 2>&1
+    with_spinner "Adding Git PPA" sudo add-apt-repository -y ppa:git-core/ppa
 }
 
-# -----------------------------------------------------------------------------
-# Function: add_neovim_ppa
-# Description: Add Neovim stable and unstable PPAs
-# Returns: 0 on success
-# -----------------------------------------------------------------------------
 add_neovim_ppa() {
     echo "Adding Neovim PPA..."
-    sudo add-apt-repository -y ppa:neovim-ppa/stable > /dev/null 2>&1
-    sudo add-apt-repository -y ppa:neovim-ppa/unstable > /dev/null 2>&1
+    with_spinner "Adding Neovim PPA" sudo add-apt-repository -y ppa:neovim-ppa/stable
 }
 
-# -----------------------------------------------------------------------------
-# Function: add_fish_ppa
-# Description: Add Fish shell release PPA
-# Returns: 0 on success
-# -----------------------------------------------------------------------------
 add_fish_ppa() {
     echo "Adding Fish shell PPA..."
-    sudo add-apt-repository -y ppa:fish-shell/release-3 > /dev/null 2>&1
+    with_spinner "Adding Fish shell PPA" sudo add-apt-repository -y ppa:fish-shell/release-3
 }
 
-# -----------------------------------------------------------------------------
-# Function: add_dotnet_ppa
-# Description: Add .NET backports PPA
-# Returns: 0 on success
-# -----------------------------------------------------------------------------
 add_dotnet_ppa() {
     echo "Adding .NET PPA..."
-    sudo add-apt-repository -y ppa:dotnet/backports > /dev/null 2>&1
+    with_spinner "Adding .NET PPA" sudo add-apt-repository -y ppa:dotnet/backports
 }
 
-# -----------------------------------------------------------------------------
-# Function: update_package_list
-# Description: Refresh package list after adding PPAs
-# Returns: 0 on success, 1 on failure
-# -----------------------------------------------------------------------------
 update_package_list() {
-    sudo apt-get -qq update > /dev/null 2>&1
+    run_apt "Refreshing package lists" -qq update
 }
 
 # -----------------------------------------------------------------------------

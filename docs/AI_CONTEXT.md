@@ -1,200 +1,120 @@
 # AI Context Guide
 
-This document provides essential context for AI systems (like Claude, ChatGPT, GitHub Copilot, etc.) analyzing, modifying, or extending this codebase.
+Essential context for AI systems analyzing, modifying, or extending this codebase.
 
-## Project Summary at a Glance
+## Project Summary
 
 - **Name:** ubuntu-setup
 - **Type:** Automated Linux environment setup
-- **Language:** Bash shell scripting
-- **Purpose:** One-command installation of a complete development environment for Ubuntu
-- **Scope:** 8 tools across system management, editing, runtime, and cloud operations
+- **Language:** Bash
+- **Purpose:** One-command installation of a development environment on Ubuntu
+- **Modules:** `library_scripts/` (not `src/`)
 
-## Key Information for AI Assistants
+## Key Design Decisions
 
-### Project Goals
+| Decision | Reason |
+|----------|--------|
+| Modular scripts in `library_scripts/` | Each tool is isolated and testable |
+| `run_step` helper in `install.sh` | Consistent logging and fail-fast behavior |
+| Optional tools via env vars | Keep default install lean |
+| `lib/logging.sh` | Structured install logs at `~/.ubuntu-setup-install.log` |
+| `scripts/ci-smoke.sh` | Local and CI validation |
 
-1. **Automation** - Eliminate manual configuration steps
-2. **Reproducibility** - Ensure consistent setups across machines
-3. **Modularity** - Each tool is independently installable
-4. **Reliability** - Fail fast with clear error messages
-5. **User-Friendly** - Minimal user interaction required
-
-### Critical Design Decisions
-
-| Decision | Reason | Impact |
-|----------|--------|--------|
-| Modular scripts in `src/` | Easy to update/extend | Each tool is isolated |
-| Sequential execution | Clear dependency management | Fail fast if any step fails |
-| Exit code checking | Robust error handling | Installation stops on first failure |
-| User feedback via echo | Transparency | Users know what's happening |
-| No rollback mechanism | Simplicity | Users should have backups |
-
-### Naming Conventions
+## Naming Conventions
 
 - **Main script:** `install.sh`
-- **Module scripts:** `src/install-<toolname>.sh`
-- **Update scripts:** `src/update-<component>.sh`
-- **Config scripts:** `src/setup-<component>.sh`
+- **Modules:** `library_scripts/install-<tool>.sh`
+- **Setup scripts:** `library_scripts/setup-<component>.sh`
+- **Config:** `library_scripts/config.sh`
 
-### Code Patterns to Follow
+## Code Patterns
 
-**Main script pattern:**
+**Main orchestration (`install.sh`):**
+
 ```bash
-if ! ./src/install-<tool>.sh; then
-    echo "Failed to install <tool>. Exiting."
-    exit 1
+run_step "Installing tmux" "$LIB_DIR/install-tmux.sh"
+```
+
+**Optional module:**
+
+```bash
+if [ "$INSTALL_TERRAFORM" = "true" ]; then
+    run_step "Installing Terraform" "$LIB_DIR/install-terraform.sh"
 fi
 ```
 
-**Module script pattern:**
+**Module script:**
+
 ```bash
 #!/bin/bash
 set -e
-# Check prerequisites
-# Install package
-# Verify installation
-exit 0
+source "$ROOT_DIR/library_scripts/config.sh"
+# install, verify, exit 0 or 1
 ```
 
-## Common Tasks and Approaches
-
-### Task: Add a New Tool
-
-1. Create `src/install-<toolname>.sh`
-2. Add execution block to `install.sh` with error checking
-3. Update `docs/ARCHITECTURE.md` and `docs/OVERVIEW.md`
-4. Test in isolation and full run
-
-See `docs/ADDING_MODULES.md` for detailed guide.
-
-### Task: Fix a Failing Installation
-
-1. Identify which script is failing (check error message)
-2. Review the script in `src/`
-3. Check `docs/TROUBLESHOOTING.md` for known issues
-4. Make targeted fix to single script
-5. Test the specific script: `./src/install-<tool>.sh`
-6. Test full installation: `./install.sh`
-
-### Task: Update Documentation
-
-- High-level overview: `docs/OVERVIEW.md`
-- Technical details: `docs/ARCHITECTURE.md`
-- How-to guides: `docs/INSTALLATION_GUIDE.md`, `docs/ADDING_MODULES.md`
-- Problem solving: `docs/TROUBLESHOOTING.md`
-- AI context: `docs/AI_CONTEXT.md` (this file)
-
-### Task: Understand Execution Flow
+## Execution Flow
 
 ```
 install.sh
-  ├─ update-repositories.sh (prepare system)
-  ├─ setup-dotfiles.sh (fetch configs)
-  ├─ install-tmux.sh (terminal multiplexer)
-  ├─ install-fish.sh (shell)
-  ├─ install-neovim.sh (editor)
-  ├─ install-nodejs.sh (runtime)
-  ├─ install-terraform.sh (infrastructure)
-  └─ install-nebius-cli.sh (cloud CLI)
+  ├─ init_logging
+  ├─ config.sh
+  ├─ check-prerequisites.sh
+  ├─ update-repositories.sh
+  ├─ setup-dotfiles.sh
+  ├─ install-tmux.sh
+  ├─ install-fish.sh
+  ├─ install-neovim.sh
+  ├─ install-nvm.sh
+  ├─ install-fzf.sh
+  ├─ install-fonts.sh
+  ├─ install-terraform.sh      (optional)
+  ├─ install-nebius-cli.sh    (optional)
+  └─ install-dotnet.sh        (optional)
 ```
 
-Each script must succeed for the next to run.
+## Common Tasks
+
+### Add a new tool
+
+1. Create `library_scripts/install-<tool>.sh`
+2. Add `run_step` call to `install.sh`
+3. Add env flag to `config.sh` if optional
+4. Update docs and `scripts/ci-smoke.sh`
+5. Run `./scripts/ci-smoke.sh`
+
+### Fix a failing install
+
+1. Check `~/.ubuntu-setup-install.log`
+2. Run the failing module directly
+3. See `docs/TROUBLESHOOTING.md`
+4. Re-run `./install.sh`
 
 ## Critical Constraints
 
-### Do NOT Violate These
+1. Check exit codes — required modules must fail the install
+2. Source `config.sh` for paths and flags
+3. Keep modules idempotent where possible
+4. Ubuntu-focused — do not assume other distros
+5. Update docs when behavior changes
+6. Run CI smoke tests before finishing
 
-1. **Error Handling** - Always check exit codes with `if ! ... ; then ... exit 1; fi`
-2. **User Feedback** - Always echo progress messages
-3. **Exit Codes** - Return 0 on success, 1 on failure
-4. **Script Independence** - Each script should be testable alone
-5. **Idempotency** - Installing twice shouldn't cause issues
-6. **Ubuntu Compatibility** - Support Ubuntu 18.04 LTS and newer
+## Testing Checklist
 
-### Things That Would Break the Project
+- [ ] `./library_scripts/install-<tool>.sh`
+- [ ] `./install.sh`
+- [ ] `./scripts/ci-smoke.sh`
+- [ ] Documentation updated
 
-- Scripts without proper error checking
-- Not returning correct exit codes
-- Silent failures with no user feedback
-- Dependencies between scripts not documented
-- Scripts that require manual intervention
-- Modifications that change install order without reason
+## Security Notes
 
-## File Relationships
-
-```
-README.md ─────→ Quick project overview
-            ├──→ docs/README.md ────→ Documentation index
-            ├──→ docs/OVERVIEW.md ──→ What the project does
-            ├──→ docs/ARCHITECTURE.md → How it's structured
-            ├──→ docs/INSTALLATION_GUIDE.md → How to use it
-            ├──→ docs/ADDING_MODULES.md → How to extend it
-            ├──→ docs/TROUBLESHOOTING.md → How to fix problems
-            └──→ docs/AI_CONTEXT.md → This file
-
-install.sh ──→ Orchestrates installations
-src/*.sh ──→ Individual tool installation scripts
-```
-
-## Before Making Changes
-
-✓ Read the relevant documentation file
-
-✓ Understand why the current implementation works
-
-✓ Check `docs/TROUBLESHOOTING.md` for known issues
-
-✓ Plan the minimal change needed
-
-✓ Test in isolation (individual script)
-
-✓ Test full integration (entire install.sh)
-
-✓ Update documentation if behavior changes
-
-## Testing Checklist for Any Change
-
-- [ ] Individual script works: `./src/install-<tool>.sh`
-- [ ] Full installation works: `./install.sh`
-- [ ] Error handling works (introduce intentional error)
-- [ ] User feedback is clear (review all echo messages)
-- [ ] Documentation is updated
-- [ ] No breaking changes to existing behavior
-
-## Performance Considerations
-
-- Typical installation: 10-30 minutes
-- Bottleneck: Package downloads and compilation
-- Optimization: Minimize redundant updates (use `-qq` for apt)
-- User experience: Show progress, don't wait silently
-
-## Security Considerations
-
-- Scripts use `sudo` for system-wide installations
-- Private dotfiles handled via SSH/GitHub credentials
-- No hardcoded passwords or secrets
-- User runs scripts explicitly (not auto-executed)
-
-## Common Misconceptions to Avoid
-
-❌ Scripts need to support all Linux distros (NO - Ubuntu only)
-
-❌ Need a rollback mechanism (NO - users should have backups)
-
-❌ Tools can be installed in any order (NO - follow the sequence)
-
-❌ Scripts should check if tools already exist (NO - idempotency is nice but not required)
-
-✓ Scripts should be simple and focused
-
-✓ Error messages should be clear
-
-✓ User feedback is important
+- Uses `sudo` for system packages
+- Downloads installers to temp files before execution (Nebius, NVM)
+- Dotfiles use SSH with HTTPS fallback
+- No secrets in the repository
 
 ## References
 
-- **Official Documentation:** `docs/` folder
-- **Ubuntu Package Manager:** apt-get
-- **Main Entry Point:** `install.sh`
-- **Module Template:** `docs/ADDING_MODULES.md`
+- Entry point: `install.sh`
+- Config: `library_scripts/config.sh`
+- CI: `.github/workflows/ci.yml`, `scripts/ci-smoke.sh`
+- Module template: `docs/ADDING_MODULES.md`

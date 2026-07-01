@@ -2,7 +2,7 @@
   "name": "Ubuntu Setup",
   "id": "ubuntu-setup",
   "version": "1.0.0",
-  "description": "Personal Ubuntu development environment setup with tools like Fish shell, Neovim, Node.js, Terraform, and more",
+  "description": "Personal Ubuntu development environment setup with Fish shell, Neovim, NVM, fzf, and optional Terraform/Nebius CLI",
   "options": {
     "dotfilesRepo": {
       "type": "string",

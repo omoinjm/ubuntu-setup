@@ -4,10 +4,10 @@ This guide explains how to add new installation modules to the setup script.
 
 ## Module Structure
 
-Each module is a shell script in the `src/` directory following this naming convention:
+Each module is a shell script in the `library_scripts/` directory following this naming convention:
 
 ```
-src/install-<toolname>.sh
+library_scripts/install-<toolname>.sh
 ```
 
 ## Template for New Modules
@@ -19,27 +19,24 @@ src/install-<toolname>.sh
 # Purpose: Install and configure example tool
 # Exit codes: 0 = success, 1 = failure
 
-set -e  # Exit on error
+set -e
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=library_scripts/config.sh
+source "$ROOT_DIR/library_scripts/config.sh"
 
 TOOL_NAME="example-tool"
 
 echo "Installing $TOOL_NAME..."
 
-# Step 1: Check prerequisites
 if ! command -v git &> /dev/null; then
     echo "Error: Git is required but not installed."
     exit 1
 fi
 
-# Step 2: Install the package
-sudo apt-get update -qq
-sudo apt-get install -y example-tool
+sudo apt-get -qq update > /dev/null 2>&1
+sudo apt-get -qq install -y example-tool > /dev/null 2>&1
 
-# Step 3: Configure (if needed)
-mkdir -p ~/.config/example-tool
-# Copy configuration files or run setup commands
-
-# Step 4: Verify installation
 if ! command -v example-tool &> /dev/null; then
     echo "Error: $TOOL_NAME installation verification failed."
     exit 1
@@ -51,108 +48,107 @@ exit 0
 
 ## Step-by-Step: Add a New Tool
 
-### 1. Create the Script File
+### 1. Create the script
 
 ```bash
-touch src/install-mynewtools.sh
-chmod +x src/install-mynewtools.sh
+touch library_scripts/install-mynewtool.sh
+chmod +x library_scripts/install-mynewtool.sh
 ```
 
-### 2. Write the Script
+### 2. Write the script
 
 Follow the template above:
+
 - Add a shebang (`#!/bin/bash`)
 - Include a comment header with purpose
-- Use `set -e` to exit on error
-- Include prerequisite checks
-- Perform installation
-- Verify the installation
-- Return appropriate exit code
+- Use `set -e`
+- Source `config.sh` for shared paths
+- Check prerequisites, install, verify, and return exit codes
 
-### 3. Update Main install.sh
+### 3. Update `install.sh`
 
-Add your module to `install.sh`:
+Add your module using the existing `run_step` helper:
 
 ```bash
-# Install mynewtools
-echo "Running mynewtools installation script..."
-if ! ./src/install-mynewtools.sh; then
-    echo "Failed to install mynewtools. Exiting."
-    exit 1
+run_step "Installing mynewtool" "$LIB_DIR/install-mynewtool.sh"
+```
+
+For optional tools, gate it with an environment variable in `config.sh`:
+
+```bash
+export INSTALL_MYNEWTOOL="${INSTALL_MYNEWTOOL:-false}"
+```
+
+Then in `install.sh`:
+
+```bash
+if [ "$INSTALL_MYNEWTOOL" = "true" ]; then
+    run_step "Installing mynewtool" "$LIB_DIR/install-mynewtool.sh"
 fi
 ```
 
-Insert this in the appropriate logical location in the script.
+### 4. Update documentation
 
-### 4. Update Documentation
+- Add the tool to `docs/ARCHITECTURE.md`
+- Add the tool to `README.md` and `docs/OVERVIEW.md`
+- Add troubleshooting notes if needed
 
-Update `docs/ARCHITECTURE.md`:
-- Add your tool to the directory structure
-- Add it to the execution flow diagram
+### 5. Update CI
 
-Update `docs/OVERVIEW.md`:
-- Add your tool to the "What It Does" section
+Add the new script path to `scripts/ci-smoke.sh` in the `required_modules` array.
 
-### 5. Test the New Module
-
-Test your new script in isolation:
+### 6. Test
 
 ```bash
-./src/install-mynewtools.sh
-```
-
-Then test the full installation process:
-
-```bash
+./library_scripts/install-mynewtool.sh
 ./install.sh
+./scripts/ci-smoke.sh
 ```
 
 ## Best Practices
 
-### Error Handling
-- Check for prerequisites before installation
-- Validate installation with version checks or command availability
-- Provide clear error messages
-- Use appropriate exit codes
+### Error handling
 
-### User Feedback
+- Check prerequisites before installation
+- Validate with version checks or `command -v`
+- Return exit code 1 on failure
+
+### User feedback
+
 - Echo progress messages
 - Show tool version after installation
-- Indicate success with clear completion message
+- Use consistent success markers (`✓`)
 
 ### Compatibility
-- Use only Ubuntu/Debian compatible package managers
-- Support Ubuntu LTS versions (18.04, 20.04, 22.04+)
-- Check for existing installations before reinstalling
 
-### Minimal Changes
-- Only install what's necessary
-- Don't modify system files unnecessarily
-- Keep configuration in user home directory when possible
+- Target Ubuntu LTS releases
+- Detect architecture when downloading binaries (`uname -m`)
+- Skip or warn when a package is unavailable instead of failing hard for optional extras
 
 ## Common Patterns
 
-### Install from apt Repository
+### Install from apt
+
 ```bash
-sudo apt-get update -qq
-sudo apt-get install -y package-name
+sudo apt-get -qq update > /dev/null 2>&1
+sudo apt-get -qq install -y package-name > /dev/null 2>&1
 ```
 
-### Install from npm
+### Install from a downloaded script
+
 ```bash
-npm install -g package-name
+installer_script=$(mktemp)
+trap 'rm -f "$installer_script"' EXIT
+curl -fsSL https://example.com/installer.sh -o "$installer_script"
+bash "$installer_script"
 ```
 
-### Install from source/binary
-```bash
-curl -fsSL https://example.com/installer.sh | bash
-```
+### Configure with dotfiles
 
-### Configure with Dotfiles
 ```bash
-# If configuration is in dotfiles repo
-mkdir -p ~/.config/tool-name
-# Link or copy config from dotfiles
+if [ -d "$DOTFILES_SOME_DIR" ] && [ ! -e "$SOME_CONFIG_DIR" ]; then
+    ln -s "$DOTFILES_SOME_DIR" "$SOME_CONFIG_DIR"
+fi
 ```
 
 ## Module Dependencies
@@ -161,24 +157,14 @@ If your module depends on another tool:
 
 1. Add a prerequisite check at the start
 2. Note the dependency in comments
-3. Consider reordering `install.sh` to install dependencies first
-
-Example:
-```bash
-# Check that Git is installed (installed by setup-dotfiles.sh)
-if ! command -v git &> /dev/null; then
-    echo "Error: Git is required. Run setup-dotfiles.sh first."
-    exit 1
-fi
-```
+3. Order `install.sh` so dependencies run first
 
 ## Testing Checklist
 
 - [ ] Script runs without errors
-- [ ] Tool is installed in expected location
-- [ ] Version command works (`tool --version`)
+- [ ] Tool is installed in the expected location
+- [ ] Version command works
 - [ ] Configuration is applied correctly
-- [ ] Script returns exit code 0 on success
-- [ ] Script returns exit code 1 on failure
-- [ ] Error messages are clear and helpful
-- [ ] Works on clean Ubuntu install
+- [ ] Exit code 0 on success, 1 on failure
+- [ ] `./scripts/ci-smoke.sh` passes
+- [ ] Works on a clean Ubuntu install
