@@ -8,6 +8,24 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LIB_DIR="$SCRIPT_DIR/library_scripts"
+SHOW_PLAN_ONLY=false
+
+for arg in "$@"; do
+    case "$arg" in
+        --show-plan)
+            SHOW_PLAN_ONLY=true
+            ;;
+        -h|--help)
+            echo "Usage: ./install.sh [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  --show-plan    Print the installation plan and exit"
+            echo ""
+            echo "Environment variables: see library_scripts/config.sh and README.md"
+            exit 0
+            ;;
+    esac
+done
 
 # Source logging functions
 # shellcheck source=lib/logging.sh
@@ -29,6 +47,7 @@ run_step() {
     local step_start=$SECONDS
 
     section "$label"
+    announce_command "$script"
     spinner_start "$label"
     if ! "$script"; then
         exit_code=$?
@@ -51,6 +70,15 @@ section "Loading configuration..."
 source "$LIB_DIR/config.sh"
 success "Configuration loaded"
 echo
+
+# shellcheck source=library_scripts/install-plan.sh
+source "$LIB_DIR/install-plan.sh"
+print_install_plan
+
+if [ "$SHOW_PLAN_ONLY" = true ]; then
+    info "Plan only mode (--show-plan). Exiting without installing."
+    exit 0
+fi
 
 section "Creating required directories..."
 mkdir -p "$CONFIG_DIR" "$DOTFILES_DIR" "$LOG_DIR" "$BIN_DIR"

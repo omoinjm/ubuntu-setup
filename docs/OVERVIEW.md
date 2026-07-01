@@ -24,7 +24,8 @@ The `install.sh` script orchestrates the installation and configuration of:
 - **Configurable** — Dotfiles URL and optional tools via environment variables
 - **Logged installs** — Writes to `~/.ubuntu-setup-install.log`
 - **Progress spinners** — Animated indicators with elapsed time for long-running steps
-- **Download progress** — `pv` installed automatically when missing (`INSTALL_PV=true`); falls back to `curl --progress-bar` if skipped or unavailable
+- **Install plan** — Summary of steps, apt packages, PPAs, and downloads before install begins
+- **Command visibility** — Each shell command is printed as it runs (`SHOW_INSTALL_COMMANDS=true`)
 - **CI validated** — GitHub Actions runs smoke tests on every change
 - **Uninstall support** — `uninstall.sh` removes installed components
 

@@ -52,6 +52,15 @@ _log_progress_output() {
     fi
 }
 
+# Print the shell command before it runs (when SHOW_INSTALL_COMMANDS=true).
+announce_command() {
+    [ "${SHOW_INSTALL_COMMANDS:-true}" = "true" ] || return 0
+    printf "  ${PROGRESS_DIM}\$ %s${PROGRESS_NC}\n" "$*" >&2
+    if [ -n "${LOG_FILE:-}" ]; then
+        echo "CMD: $*" >> "$LOG_FILE"
+    fi
+}
+
 _spinner_worker() {
     local message="$1"
     local start="${2:-$SECONDS}"
@@ -121,6 +130,8 @@ with_spinner() {
     local output
     local exit_code=0
 
+    announce_command "$*"
+
     output=$(mktemp)
     trap 'rm -f "$output"' RETURN
 
@@ -153,6 +164,8 @@ with_spinner_live() {
     local message="$1"
     shift
     local exit_code=0
+
+    announce_command "$*"
 
     if ! spinner_enabled; then
         "$@"
@@ -249,6 +262,7 @@ download_with_progress() {
     local exit_code=0
 
     if ! spinner_enabled; then
+        announce_command "curl -fsSL -o $(printf '%q' "$dest") $(printf '%q' "$url")"
         if curl -fsSL -o "$dest" "$url"; then
             _log_progress_output "$message" "downloaded $url"
             return 0
@@ -257,6 +271,9 @@ download_with_progress() {
         return 1
     fi
 
+    _ensure_pv_available || true
+
+    announce_command "curl -fsL $(printf '%q' "$url") | pv -s <bytes> -N $(printf '%q' "$message") > $(printf '%q' "$dest")"
     if _download_with_pv "$message" "$url" "$dest"; then
         printf "  ${PROGRESS_GREEN}✓${PROGRESS_NC} %s  ${PROGRESS_DIM}(%s)${PROGRESS_NC}\n" \
             "$message" "$(format_elapsed $((SECONDS - start)))" >&2
@@ -264,6 +281,7 @@ download_with_progress() {
         return 0
     fi
 
+    announce_command "curl -fSL --progress-bar $(printf '%q' "$url") -o $(printf '%q' "$dest")"
     if _download_with_curl_bar "$message" "$url" "$dest"; then
         _log_progress_output "$message" "downloaded via curl: $url"
         return 0

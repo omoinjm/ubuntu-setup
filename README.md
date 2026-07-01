@@ -33,6 +33,9 @@ chmod +x install.sh uninstall.sh library_scripts/*.sh scripts/ci-smoke.sh
 # Run the installation
 ./install.sh
 
+# Preview what will be installed (no changes made)
+./install.sh --show-plan
+
 # Optional tools
 INSTALL_TERRAFORM=true INSTALL_NEBIUS_CLI=true ./install.sh
 ```
@@ -57,6 +60,8 @@ Environment variables (see `library_scripts/config.sh`):
 | `INSTALL_TERRAFORM` | `false` | Install Terraform |
 | `INSTALL_NEBIUS_CLI` | `false` | Install Nebius CLI |
 | `INSTALL_DOTNET` | `false` | Install .NET SDK |
+| `SHOW_INSTALL_PLAN` | `true` | Print package/step summary before installing |
+| `SHOW_INSTALL_COMMANDS` | `true` | Print each shell command as it runs |
 | `DISABLE_SPINNER` | `false` | Disable animated progress spinners (auto-disabled in CI) |
 
 ## Documentation
@@ -103,7 +108,7 @@ chsh -s /usr/bin/fish
 
 GitHub Actions runs syntax checks, ShellCheck, and structural smoke tests on every push and pull request.
 
-Progress indicators show elapsed time on all spinners. File downloads also display a progress bar (`pv` when installed, otherwise `curl --progress-bar`).
+Progress indicators show elapsed time on all spinners. File downloads use `pv` for byte/rate/ETA bars when available (`INSTALL_PV=true` by default, installed automatically if missing). Otherwise downloads fall back to `curl --progress-bar`.
 
 ## Troubleshooting
 

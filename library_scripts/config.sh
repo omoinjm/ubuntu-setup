@@ -23,6 +23,10 @@ export DOTFILES_REPO_SSH="${DOTFILES_REPO_SSH:-git@github.com:omoinjm/.dotfiles.
 # Set to "true" to continue installation when dotfiles cannot be cloned
 export DOTFILES_OPTIONAL="${DOTFILES_OPTIONAL:-false}"
 
+# Installation visibility (set to "false" to hide plan or commands)
+export SHOW_INSTALL_PLAN="${SHOW_INSTALL_PLAN:-true}"
+export SHOW_INSTALL_COMMANDS="${SHOW_INSTALL_COMMANDS:-true}"
+
 # Optional tools (set to "true" to install)
 export INSTALL_PV="${INSTALL_PV:-true}"
 export INSTALL_TERRAFORM="${INSTALL_TERRAFORM:-false}"

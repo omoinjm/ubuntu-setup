@@ -40,6 +40,7 @@ install.sh (main script)
     ├─→ config.sh
     ├─→ check-prerequisites.sh
     ├─→ update-repositories.sh
+    ├─→ install-pv.sh                 (if INSTALL_PV=true, default)
     ├─→ setup-dotfiles.sh
     ├─→ install-tmux.sh
     ├─→ install-fish.sh

@@ -62,6 +62,18 @@ test -n "$DOTFILES_REPO"
 echo "  config exports look valid"
 
 echo
+echo "==> Install plan"
+# shellcheck source=library_scripts/install-plan.sh
+source library_scripts/install-plan.sh
+plan_file=$(mktemp)
+SHOW_INSTALL_PLAN=true INSTALL_TERRAFORM=false INSTALL_NEBIUS_CLI=false INSTALL_DOTNET=false \
+    print_install_plan >"$plan_file"
+grep -q "Installation Plan" "$plan_file"
+grep -q "tmux" "$plan_file"
+rm -f "$plan_file"
+echo "  install plan renders"
+
+echo
 echo "==> Progress helpers"
 DISABLE_SPINNER=true
 # shellcheck source=lib/progress.sh
