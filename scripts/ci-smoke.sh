@@ -66,6 +66,8 @@ DISABLE_SPINNER=true
 # shellcheck source=lib/progress.sh
 source lib/progress.sh
 with_spinner "Progress helper check" true
+test "$(format_elapsed 0)" = "0s"
+test "$(format_elapsed 65)" = "1m 05s"
 echo "  progress helpers work"
 
 echo

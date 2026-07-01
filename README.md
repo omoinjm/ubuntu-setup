@@ -102,6 +102,8 @@ chsh -s /usr/bin/fish
 
 GitHub Actions runs syntax checks, ShellCheck, and structural smoke tests on every push and pull request.
 
+Progress indicators show elapsed time on all spinners. File downloads also display a progress bar (`pv` when installed, otherwise `curl --progress-bar`).
+
 ## Troubleshooting
 
 If installation fails, check [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for solutions to common issues.

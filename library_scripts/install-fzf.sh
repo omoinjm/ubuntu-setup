@@ -75,7 +75,7 @@ download_fzf() {
     printf "Downloading fzf %s...\n" "$version"
 
     # Download the archive
-    if ! run_curl "Downloading fzf ${version}" -fsSL -o "$temp_dir/$archive_name" "$download_url"; then
+    if ! run_download "Downloading fzf ${version}" "$download_url" "$temp_dir/$archive_name"; then
         echo "Error: Failed to download fzf from GitHub"
         rm -rf "$temp_dir"
         return 1

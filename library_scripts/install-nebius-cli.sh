@@ -28,7 +28,7 @@ fi
 installer_script=$(mktemp)
 trap 'rm -f "$installer_script"' EXIT
 
-if ! run_curl "Downloading Nebius CLI installer" -fsSL "$INSTALLER_URL" -o "$installer_script"; then
+if ! run_download "Downloading Nebius CLI installer" "$INSTALLER_URL" "$installer_script"; then
     echo "Error: Failed to download Nebius CLI installer."
     exit 1
 fi

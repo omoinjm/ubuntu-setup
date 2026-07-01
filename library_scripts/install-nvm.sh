@@ -43,7 +43,9 @@ download_nvm_install_script() {
     local version="$1"
     local install_script="$NVM_DIR/install.sh"
 
-    run_curl "Downloading NVM ${version}" -fsSL -o "$install_script" "https://raw.githubusercontent.com/nvm-sh/nvm/${version}/install.sh"
+    run_download "Downloading NVM ${version}" \
+        "https://raw.githubusercontent.com/nvm-sh/nvm/${version}/install.sh" \
+        "$install_script"
 
     if [ ! -s "$install_script" ]; then
         echo "Error: Failed to download NVM install script"

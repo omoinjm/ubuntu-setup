@@ -58,7 +58,7 @@ download_font() {
     printf "Downloading %s...\n" "$FONT_NAME"
 
     # Download the font file
-    if ! run_curl "Downloading ${FONT_NAME}" -fsSL -o "$temp_dir/$FONT_FILE" "$url"; then
+    if ! run_download "Downloading ${FONT_NAME}" "$url" "$temp_dir/$FONT_FILE"; then
         echo "Error: Failed to download font from GitHub"
         rm -rf "$temp_dir"
         return 1

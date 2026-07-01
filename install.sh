@@ -26,6 +26,7 @@ run_step() {
     local label="$1"
     local script="$2"
     local exit_code=0
+    local step_start=$SECONDS
 
     section "$label"
     spinner_start "$label"
@@ -36,7 +37,7 @@ run_step() {
     if [ "$exit_code" -ne 0 ]; then
         fail_step "$label failed."
     fi
-    success "$label completed"
+    success "$label completed ($(format_elapsed $((SECONDS - step_start))))"
     echo
 }
 
