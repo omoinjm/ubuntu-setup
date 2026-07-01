@@ -19,6 +19,7 @@ ubuntu-setup/
 │   ├── install-nvm.sh
 │   ├── install-fzf.sh
 │   ├── install-fonts.sh
+│   ├── install-pv.sh                 # Optional pipe viewer (INSTALL_PV=true, default)
 │   ├── install-terraform.sh        # Optional (INSTALL_TERRAFORM=true)
 │   ├── install-nebius-cli.sh       # Optional (INSTALL_NEBIUS_CLI=true)
 │   └── install-dotnet.sh           # Optional (INSTALL_DOTNET=true)

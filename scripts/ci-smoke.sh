@@ -35,6 +35,7 @@ required_modules=(
     library_scripts/install-nvm.sh
     library_scripts/install-fzf.sh
     library_scripts/install-fonts.sh
+    library_scripts/install-pv.sh
     library_scripts/install-terraform.sh
     library_scripts/install-nebius-cli.sh
     library_scripts/install-dotnet.sh

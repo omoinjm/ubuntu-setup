@@ -60,6 +60,7 @@ echo
 
 run_step "Checking system prerequisites" "$LIB_DIR/check-prerequisites.sh"
 run_step "Updating system repositories" "$LIB_DIR/update-repositories.sh"
+run_step "Installing pv (pipe viewer)" "$LIB_DIR/install-pv.sh"
 run_step "Setting up dotfiles" "$LIB_DIR/setup-dotfiles.sh"
 run_step "Installing tmux" "$LIB_DIR/install-tmux.sh"
 run_step "Installing Fish shell" "$LIB_DIR/install-fish.sh"

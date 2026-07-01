@@ -172,13 +172,26 @@ _get_remote_content_length() {
     curl -fsI "$url" 2>/dev/null | awk 'tolower($1) == "content-length:" { print $2 }' | tr -d '\r'
 }
 
+# Install pv on demand when enabled and missing (no-op if already present).
+_ensure_pv_available() {
+    command -v pv &>/dev/null && return 0
+    [ "${INSTALL_PV:-true}" = "true" ] || return 1
+
+    if ! command -v apt-get &>/dev/null; then
+        return 1
+    fi
+
+    with_spinner "Installing pv (pipe viewer)" sudo apt-get -qq install -y pv
+    command -v pv &>/dev/null
+}
+
 _download_with_pv() {
     local message="$1"
     local url="$2"
     local dest="$3"
     local size
 
-    command -v pv &>/dev/null || return 1
+    _ensure_pv_available || return 1
 
     size=$(_get_remote_content_length "$url")
     [ -n "$size" ] && [ "$size" -gt 0 ] 2>/dev/null || return 1

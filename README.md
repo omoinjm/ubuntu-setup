@@ -53,6 +53,7 @@ Environment variables (see `library_scripts/config.sh`):
 |----------|---------|-------------|
 | `DOTFILES_REPO` | `https://github.com/omoinjm/.dotfiles.git` | Dotfiles HTTPS URL |
 | `DOTFILES_OPTIONAL` | `false` | Continue if dotfiles clone fails |
+| `INSTALL_PV` | `true` | Install `pv` for enhanced download progress bars |
 | `INSTALL_TERRAFORM` | `false` | Install Terraform |
 | `INSTALL_NEBIUS_CLI` | `false` | Install Nebius CLI |
 | `INSTALL_DOTNET` | `false` | Install .NET SDK |

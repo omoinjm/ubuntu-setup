@@ -24,6 +24,7 @@ export DOTFILES_REPO_SSH="${DOTFILES_REPO_SSH:-git@github.com:omoinjm/.dotfiles.
 export DOTFILES_OPTIONAL="${DOTFILES_OPTIONAL:-false}"
 
 # Optional tools (set to "true" to install)
+export INSTALL_PV="${INSTALL_PV:-true}"
 export INSTALL_TERRAFORM="${INSTALL_TERRAFORM:-false}"
 export INSTALL_NEBIUS_CLI="${INSTALL_NEBIUS_CLI:-false}"
 export INSTALL_DOTNET="${INSTALL_DOTNET:-false}"

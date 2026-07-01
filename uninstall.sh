@@ -53,6 +53,10 @@ remove_apt_package() {
     fi
 }
 
+if command -v pv &>/dev/null; then
+    remove_apt_package pv pv
+fi
+
 if command -v tmux &>/dev/null; then
     remove_apt_package tmux tmux
 fi
