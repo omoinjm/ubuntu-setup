@@ -42,7 +42,15 @@ chmod +x install.sh uninstall.sh library_scripts/*.sh scripts/ci-smoke.sh
 ./library_scripts/check-prerequisites.sh
 ```
 
-### Step 5: Run the installation
+### Step 5: Preview the install plan (optional)
+
+```bash
+./install.sh --show-plan
+```
+
+This prints the planned steps, apt packages, PPAs, and downloads without making any changes.
+
+### Step 6: Run the installation
 
 ```bash
 ./install.sh
@@ -62,12 +70,15 @@ DOTFILES_REPO=https://github.com/you/your-dotfiles.git ./install.sh
 
 The script will:
 
+- Print an install plan summary before making changes (unless `SHOW_INSTALL_PLAN=false`)
 - Prompt for sudo password when needed
-- Display color-coded progress
+- Display color-coded progress with elapsed-time spinners (unless `DISABLE_SPINNER=true`)
+- Print each command as it runs (unless `SHOW_INSTALL_COMMANDS=false`)
+- Use `pv` for download progress bars when available (unless `INSTALL_PV=false`)
 - Stop immediately if a required step fails
 - Write a log to `~/.ubuntu-setup-install.log`
 
-### Step 6: Verify installation
+### Step 7: Verify installation
 
 ```bash
 tmux -V
@@ -85,6 +96,22 @@ terraform --version    # if INSTALL_TERRAFORM=true
 nebius --version       # if INSTALL_NEBIUS_CLI=true
 dotnet --version       # if INSTALL_DOTNET=true
 ```
+
+## Configuration
+
+Environment variables (see `library_scripts/config.sh`):
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DOTFILES_REPO` | `https://github.com/omoinjm/.dotfiles.git` | Dotfiles HTTPS URL |
+| `DOTFILES_OPTIONAL` | `false` | Continue if dotfiles clone fails |
+| `INSTALL_PV` | `true` | Install `pv` for enhanced download progress bars |
+| `INSTALL_TERRAFORM` | `false` | Install Terraform |
+| `INSTALL_NEBIUS_CLI` | `false` | Install Nebius CLI |
+| `INSTALL_DOTNET` | `false` | Install .NET SDK |
+| `SHOW_INSTALL_PLAN` | `true` | Print package/step summary before installing |
+| `SHOW_INSTALL_COMMANDS` | `true` | Print each shell command as it runs |
+| `DISABLE_SPINNER` | `false` | Disable animated progress spinners (auto-disabled in CI) |
 
 ## Installation Time
 

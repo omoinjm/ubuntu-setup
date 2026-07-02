@@ -9,23 +9,26 @@ This project provides an automated setup script for configuring an Ubuntu Linux 
 The `install.sh` script orchestrates the installation and configuration of:
 
 1. **Repository management** — Updates system package repositories and PPAs
-2. **Dotfiles** — Clones personal configuration files from GitHub
-3. **Terminal multiplexer** — tmux
-4. **Shell** — Fish with oh-my-posh and optional lsd
-5. **Editor** — Neovim with common CLI dependencies
-6. **Runtime** — NVM and Node.js LTS
-7. **Productivity** — fzf fuzzy finder and Nerd Fonts
-8. **Optional** — Terraform, Nebius CLI, and .NET SDK when enabled via env vars
+2. **Pipe viewer (pv)** — Installed by default for enhanced download progress bars
+3. **Dotfiles** — Clones personal configuration files from GitHub
+4. **Terminal multiplexer** — tmux
+5. **Shell** — Fish with oh-my-posh and optional lsd
+6. **Editor** — Neovim with common CLI dependencies
+7. **Runtime** — NVM and Node.js LTS
+8. **Productivity** — fzf fuzzy finder and Nerd Fonts
+9. **Optional** — Terraform, Nebius CLI, and .NET SDK when enabled via env vars
 
 ## Key Features
 
 - **Modular design** — Each tool has its own script in `library_scripts/`
 - **Fail-fast error handling** — Installation stops when a required step fails
-- **Configurable** — Dotfiles URL and optional tools via environment variables
+- **Configurable** — Dotfiles URL, optional tools, and install visibility via environment variables
 - **Logged installs** — Writes to `~/.ubuntu-setup-install.log`
-- **Progress spinners** — Animated indicators with elapsed time for long-running steps
-- **Install plan** — Summary of steps, apt packages, PPAs, and downloads before install begins
+- **Dry-run plan** — `./install.sh --show-plan` previews steps without making changes
+- **Progress spinners** — Animated indicators with elapsed time (`DISABLE_SPINNER=true` to turn off)
+- **Install plan** — Summary of steps, apt packages, PPAs, and downloads before install begins (`SHOW_INSTALL_PLAN=true`)
 - **Command visibility** — Each shell command is printed as it runs (`SHOW_INSTALL_COMMANDS=true`)
+- **Download progress** — File downloads use `pv` for byte/rate/ETA bars when available (`INSTALL_PV=true`, default)
 - **CI validated** — GitHub Actions runs smoke tests on every change
 - **Uninstall support** — `uninstall.sh` removes installed components
 

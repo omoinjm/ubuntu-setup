@@ -18,6 +18,8 @@ Essential context for AI systems analyzing, modifying, or extending this codebas
 | `run_step` helper in `install.sh` | Consistent logging and fail-fast behavior |
 | Optional tools via env vars | Keep default install lean |
 | `lib/logging.sh` | Structured install logs at `~/.ubuntu-setup-install.log` |
+| `lib/progress.sh` | Spinners, command echo, and `pv`-backed download progress |
+| `install-plan.sh` | Pre-install summary; `--show-plan` exits before changes |
 | `scripts/ci-smoke.sh` | Local and CI validation |
 
 ## Naming Conventions
@@ -25,6 +27,7 @@ Essential context for AI systems analyzing, modifying, or extending this codebas
 - **Main script:** `install.sh`
 - **Modules:** `library_scripts/install-<tool>.sh`
 - **Setup scripts:** `library_scripts/setup-<component>.sh`
+- **Helpers:** `library_scripts/helpers.sh`, `library_scripts/install-plan.sh`
 - **Config:** `library_scripts/config.sh`
 
 ## Code Patterns
@@ -56,10 +59,12 @@ source "$ROOT_DIR/library_scripts/config.sh"
 
 ```
 install.sh
-  ├─ init_logging
+  ├─ init_logging (lib/logging.sh, lib/progress.sh)
   ├─ config.sh
+  ├─ install-plan.sh → print_install_plan  (--show-plan exits here)
   ├─ check-prerequisites.sh
   ├─ update-repositories.sh
+  ├─ install-pv.sh              (skips when INSTALL_PV=false)
   ├─ setup-dotfiles.sh
   ├─ install-tmux.sh
   ├─ install-fish.sh

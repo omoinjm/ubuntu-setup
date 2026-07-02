@@ -10,6 +10,8 @@ ubuntu-setup/
 │   └── ci-smoke.sh                 # CI smoke tests (syntax, shellcheck, structure)
 ├── library_scripts/                # Installation modules
 │   ├── config.sh                   # Shared configuration and feature flags
+│   ├── helpers.sh                  # Shared apt/download helpers for modules
+│   ├── install-plan.sh             # Pre-install plan renderer (SHOW_INSTALL_PLAN)
 │   ├── check-prerequisites.sh      # Pre-flight system validation
 │   ├── update-repositories.sh      # Update apt and add PPAs
 │   ├── setup-dotfiles.sh           # Clone dotfiles from GitHub
@@ -36,8 +38,9 @@ ubuntu-setup/
 ```
 install.sh (main script)
     │
-    ├─→ init_logging (lib/logging.sh)
+    ├─→ init_logging (lib/logging.sh, lib/progress.sh)
     ├─→ config.sh
+    ├─→ install-plan.sh → print_install_plan  (--show-plan exits here)
     ├─→ check-prerequisites.sh
     ├─→ update-repositories.sh
     ├─→ install-pv.sh                 (if INSTALL_PV=true, default)

@@ -21,7 +21,10 @@ setup_ssh_key() {
 
     chmod 600 "$key"
     eval "$(ssh-agent -s)"
-    ssh-add "$key"
+    ssh-add "$key" </dev/null 2>/dev/null || {
+        echo "Could not add SSH key automatically (passphrase-protected?). Add manually after attach."
+        return 0
+    }
 
     {
         echo "chmod 600 $key"

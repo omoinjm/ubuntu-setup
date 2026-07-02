@@ -1,10 +1,18 @@
 {
-  "name": "Debian setup dev container",
+  "name": "Ubuntu setup dev container",
   "dockerFile": "Dockerfile",
   "context": "..",
   "workspaceFolder": "/workspaces/ubuntu-setup",
+  "remoteUser": "vscode",
+  "updateRemoteUserUID": false,
+  "overrideCommand": false,
+  "shutdownAction": "stopContainer",
   "postCreateCommand": "bash .devcontainer/scripts/post-create-commands.sh",
   "postAttachCommand": "bash .devcontainer/scripts/post-attach-commands.sh",
+  "remoteEnv": {
+    "GIT_USER_EMAIL": "njmcloud@gmail.com",
+    "GIT_USER_NAME": "omoinjm"
+  },
   "customizations": {
     "vscode": {
       "settings": {
@@ -12,10 +20,14 @@
       }
     }
   },
-  "runArgs": ["--env-file", ".devcontainer/.env", "--privileged"],
+  "runArgs": [
+    "--env-file", ".devcontainer/.env",
+    "--privileged",
+    "--dns", "8.8.8.8",
+    "--dns", "8.8.4.4"
+  ],
   "mounts": [
     "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
     "source=ubuntu.setup-bashhistory,target=/commandhistory,type=volume"
-  ],
-  "remoteUser": "vscode"
+  ]
 }
