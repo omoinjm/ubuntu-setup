@@ -20,7 +20,30 @@ Automated installation script to set up a complete modern development environmen
 - **Nebius CLI** — `INSTALL_NEBIUS_CLI=true ./install.sh`
 - **.NET SDK** — `INSTALL_DOTNET=true ./install.sh`
 
-## Quick Start
+## Quick Install
+
+Install the latest tagged release with a single command — no manual clone needed:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/omoinjm/ubuntu-setup/main/bootstrap.sh | bash
+```
+
+`bootstrap.sh` clones the repo into a temp directory and hands off to `install.sh`, so all the usual flags and env vars work the same way, e.g.:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/omoinjm/ubuntu-setup/main/bootstrap.sh | bash -s -- --show-plan
+INSTALL_TERRAFORM=true curl -fsSL https://raw.githubusercontent.com/omoinjm/ubuntu-setup/main/bootstrap.sh | bash
+```
+
+Pin a specific version with `UBUNTU_SETUP_VERSION` (defaults to the latest tag, falling back to `main`):
+
+```bash
+UBUNTU_SETUP_VERSION=v0.1.0 curl -fsSL https://raw.githubusercontent.com/omoinjm/ubuntu-setup/main/bootstrap.sh | bash
+```
+
+## Manual Install
+
+If you'd rather inspect or modify the scripts before running them:
 
 ```bash
 # Clone the repository
