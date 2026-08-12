@@ -64,7 +64,8 @@ setup_fish_config_dir() {
         mkdir -p "$CONFIG_DIR"
     fi
 
-    # Check for dotfiles and create symlink if appropriate
+    # Check for dotfiles and create symlink if appropriate (fallback when install/link.sh was not run)
+    refresh_dotfiles_paths
     if [ -d "$DOTFILES_FISH_DIR" ] && [ ! -e "$FISH_DIR" ]; then
         ln -s "$DOTFILES_FISH_DIR" "$FISH_DIR"
         printf "Symbolic link created: %s -> dotfiles\n" "$FISH_DIR"

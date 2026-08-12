@@ -14,7 +14,7 @@ ubuntu-setup/
 │   ├── install-plan.sh             # Pre-install plan renderer (SHOW_INSTALL_PLAN)
 │   ├── check-prerequisites.sh      # Pre-flight system validation
 │   ├── update-repositories.sh      # Update apt and add PPAs
-│   ├── setup-dotfiles.sh           # Clone dotfiles from GitHub
+│   ├── setup-dotfiles.sh           # Clone dotfiles and run install/link.sh
 │   ├── install-tmux.sh
 │   ├── install-fish.sh
 │   ├── install-neovim.sh

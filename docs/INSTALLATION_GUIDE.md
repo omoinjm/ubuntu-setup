@@ -154,9 +154,11 @@ This removes installed tools but preserves config directories and dotfiles unles
 
 2. **Log out and back in** for shell and PATH changes to apply
 
-3. **Review dotfiles** at `~/.dotfiles`
+3. **Review dotfiles** at `~/.dotfiles` (configs under `home/.config/`, linked into `~/.config`)
 
-4. **Run CI smoke tests** when developing:
+4. **Copy secret templates** from `~/.dotfiles/secrets/` if needed (see dotfiles `secrets/README.md`)
+
+5. **Run CI smoke tests** when developing:
 
    ```bash
    ./scripts/ci-smoke.sh

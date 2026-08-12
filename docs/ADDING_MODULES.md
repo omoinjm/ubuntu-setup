@@ -145,7 +145,10 @@ bash "$installer_script"
 
 ### Configure with dotfiles
 
+Dotfiles live under `home/.config/<app>` in the repo. After clone, `setup-dotfiles.sh` runs `install/link.sh` to symlink fish, nvim, tmux, and lazygit into `~/.config`. Individual install scripts keep a fallback symlink when `install/link.sh` is missing (legacy `src/config/` layout).
+
 ```bash
+refresh_dotfiles_paths
 if [ -d "$DOTFILES_SOME_DIR" ] && [ ! -e "$SOME_CONFIG_DIR" ]; then
     ln -s "$DOTFILES_SOME_DIR" "$SOME_CONFIG_DIR"
 fi

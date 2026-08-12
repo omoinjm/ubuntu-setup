@@ -151,8 +151,9 @@ echo "Next steps:"
 echo "  1. Set Fish as your default shell: chsh -s /usr/bin/fish"
 echo "  2. Logout and login for changes to take effect"
 echo "  3. Review your dotfiles: $DOTFILES_DIR"
+echo "  4. Copy secret templates from $DOTFILES_DIR/secrets/ if needed"
 if [ "$INSTALL_TERRAFORM" != "true" ] || [ "$INSTALL_NEBIUS_CLI" != "true" ]; then
-    echo "  4. Optional tools: set INSTALL_TERRAFORM=true or INSTALL_NEBIUS_CLI=true and re-run"
+    echo "  5. Optional tools: set INSTALL_TERRAFORM=true or INSTALL_NEBIUS_CLI=true and re-run"
 fi
 echo "═══════════════════════════════════════════════════════════════════"
 echo

@@ -86,13 +86,19 @@ if [ ! -d "$CONFIG_DIR" ]; then
     mkdir -p "$CONFIG_DIR"
 fi
 
-# Set up symbolic link to dotfiles if they exist
+# Set up symbolic link to dotfiles if they exist (fallback when install/link.sh was not run)
+refresh_dotfiles_paths
 if [ -d "$DOTFILES_NEOVIM_DIR" ] && [ ! -e "$NEOVIM_DIR" ]; then
     ln -s "$DOTFILES_NEOVIM_DIR" "$NEOVIM_DIR"
     printf "Symbolic link created: %s -> dotfiles\n" "$NEOVIM_DIR"
 elif [ ! -d "$NEOVIM_DIR" ]; then
     mkdir -p "$NEOVIM_DIR"
     printf "Config directory created: %s\n\n" "$NEOVIM_DIR"
+fi
+
+if [ -d "$DOTFILES_LAZYGIT_DIR" ] && [ ! -e "$LAZYGIT_DIR" ]; then
+    ln -s "$DOTFILES_LAZYGIT_DIR" "$LAZYGIT_DIR"
+    printf "Symbolic link created: %s -> dotfiles\n" "$LAZYGIT_DIR"
 fi
 
 printf "\n"

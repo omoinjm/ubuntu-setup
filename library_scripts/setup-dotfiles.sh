@@ -78,5 +78,22 @@ else
     fi
 fi
 
+refresh_dotfiles_paths
+
+link_dotfiles() {
+    local link_script="$DOTFILES_DIR/install/link.sh"
+
+    if [ ! -f "$link_script" ]; then
+        printf "No install/link.sh found; individual install scripts will symlink configs if present.\n\n"
+        return 0
+    fi
+
+    printf "Linking dotfiles into %s...\n" "$CONFIG_DIR"
+    bash "$link_script"
+    printf "\n"
+}
+
+link_dotfiles
+
 echo "✓ Dotfiles setup completed successfully"
 exit 0

@@ -34,6 +34,7 @@ print_install_plan() {
         _plan_item "Install pv (pipe viewer) for download progress"
     fi
     _plan_item "Clone dotfiles from ${DOTFILES_REPO:-<not set>}"
+    _plan_item "Link dotfiles configs (fish, nvim, tmux, lazygit) into ~/.config"
     _plan_item "Install tmux"
     _plan_item "Install Fish shell (+ oh-my-posh, lsd when available)"
     _plan_item "Install Neovim and dependencies"

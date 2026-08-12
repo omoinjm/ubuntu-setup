@@ -59,6 +59,11 @@ source library_scripts/config.sh
 test -n "$CONFIG_DIR"
 test -n "$DOTFILES_DIR"
 test -n "$DOTFILES_REPO"
+test -n "$DOTFILES_CONFIG_DIR"
+test -n "$DOTFILES_FISH_DIR"
+test -n "$DOTFILES_LINUX_SHELL_DIR"
+grep -q 'refresh_dotfiles_paths' library_scripts/config.sh
+grep -q 'install/link.sh' library_scripts/setup-dotfiles.sh
 echo "  config exports look valid"
 
 echo

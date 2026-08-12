@@ -58,7 +58,8 @@ setup_tmux_config_dir() {
         mkdir -p "$CONFIG_DIR"
     fi
 
-    # Check for dotfiles and create symlink if appropriate
+    # Check for dotfiles and create symlink if appropriate (fallback when install/link.sh was not run)
+    refresh_dotfiles_paths
     if [ -d "$DOTFILES_TMUX_DIR" ] && [ ! -e "$TMUX_DIR" ]; then
         ln -s "$DOTFILES_TMUX_DIR" "$TMUX_DIR"
         printf "Symbolic link created: %s -> dotfiles\n" "$TMUX_DIR"
