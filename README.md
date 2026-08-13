@@ -177,7 +177,7 @@ If installation fails, check [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) 
 
 ## About
 
-- [Twitter @njmtech\](https://twitter.com/njmtech)
+- [Twitter @njmtech\_](https://twitter.com/njmtech)
 - [Portfolio](https://njmtech.co.za/)
 
 ## License
