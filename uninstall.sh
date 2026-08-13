@@ -16,7 +16,8 @@ echo "════════════════════════�
 echo
 echo "⚠ Warning: This will uninstall the following tools:"
 echo "  • tmux"
-echo "  • Fish shell"
+echo "  • Fish shell (if installed)"
+echo "  • Zsh shell (if installed)"
 echo "  • Neovim"
 echo "  • NVM and Node.js"
 echo "  • fzf"
@@ -63,6 +64,10 @@ fi
 
 if command -v fish &>/dev/null; then
     remove_apt_package fish "Fish shell"
+fi
+
+if command -v zsh &>/dev/null; then
+    remove_apt_package zsh "Zsh shell"
 fi
 
 if command -v nvim &>/dev/null; then
@@ -130,12 +135,13 @@ echo "════════════════════════�
 echo
 echo "Note: Config directories were preserved:"
 echo "  • $FISH_DIR"
+echo "  • $ZSH_DIR"
 echo "  • $TMUX_DIR"
 echo "  • $NEOVIM_DIR"
 echo "  • $DOTFILES_DIR (if cloned)"
 echo
 echo "To remove these manually:"
-echo "  rm -rf $FISH_DIR $TMUX_DIR $NEOVIM_DIR $DOTFILES_DIR"
+echo "  rm -rf $FISH_DIR $ZSH_DIR $TMUX_DIR $NEOVIM_DIR $DOTFILES_DIR"
 echo "═══════════════════════════════════════════════════════════════════"
 echo
 

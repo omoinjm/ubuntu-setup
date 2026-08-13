@@ -17,9 +17,8 @@ else
 fi
 # shellcheck source=library_scripts/helpers.sh
 source "$ROOT_DIR/library_scripts/helpers.sh"
-
-# oh-my-posh theme configuration
-OH_MY_POSH_THEME="tonybaloney"
+# shellcheck source=library_scripts/install-oh-my-posh.sh
+source "$ROOT_DIR/library_scripts/install-oh-my-posh.sh"
 
 echo "Installing fish shell..."
 
@@ -94,54 +93,6 @@ create_fish_config() {
 }
 
 # -----------------------------------------------------------------------------
-# Function: setup_oh_my_posh_theme
-# Description: Configure oh-my-posh theme in fish config
-# Arguments: Theme name
-# Returns: 0 on success
-# -----------------------------------------------------------------------------
-setup_oh_my_posh_theme() {
-    local theme="$1"
-    local fish_conf="$FISH_DIR/config.fish"
-    local theme_url="https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/${theme}.omp.json"
-    local theme_init="oh-my-posh init fish --config \"${theme_url}\" | source"
-
-    # Check if theme is already configured
-    if grep -q "oh-my-posh" "$fish_conf" 2>/dev/null; then
-        printf "oh-my-posh theme already configured in %s\n" "$fish_conf"
-        return 0
-    fi
-
-    # Add theme configuration
-    echo "$theme_init" >> "$fish_conf"
-    printf "Added oh-my-posh theme (%s) configuration to %s\n" "$theme" "$fish_conf"
-}
-
-# -----------------------------------------------------------------------------
-# Function: check_oh_my_posh_installed
-# Description: Check if oh-my-posh is available
-# Returns: 0 if installed, 1 otherwise
-# -----------------------------------------------------------------------------
-check_oh_my_posh_installed() {
-    command -v oh-my-posh &>/dev/null
-}
-
-# -----------------------------------------------------------------------------
-# Function: install_oh_my_posh
-# Description: Install oh-my-posh prompt theme engine
-# Returns: 0 on success (warning on failure is acceptable)
-# -----------------------------------------------------------------------------
-install_oh_my_posh() {
-    printf "Installing oh-my-posh...\n"
-    if with_spinner "Installing oh-my-posh" bash -c 'curl -fsSL https://ohmyposh.dev/install.sh | bash'; then
-        printf "oh-my-posh successfully installed.\n\n"
-        return 0
-    else
-        printf "Warning: oh-my-posh installation failed. Continuing without it.\n\n"
-        return 1
-    fi
-}
-
-# -----------------------------------------------------------------------------
 # Function: check_lsd_installed
 # Description: Check if lsd (LSDeluxe) is available
 # Returns: 0 if installed, 1 otherwise
@@ -191,16 +142,11 @@ setup_fish_config_dir
 create_fish_config
 
 # Install oh-my-posh before writing theme configuration
-if ! check_oh_my_posh_installed; then
-    install_oh_my_posh || true
-else
-    posh_version=$(oh-my-posh --version 2>/dev/null || echo "unknown")
-    printf "oh-my-posh is already installed: %s\n\n" "$posh_version"
-fi
+ensure_oh_my_posh_installed || true
 
 # Configure oh-my-posh theme only when the binary is available
 if check_oh_my_posh_installed; then
-    setup_oh_my_posh_theme "$OH_MY_POSH_THEME"
+    setup_oh_my_posh_in_rc fish "$FISH_DIR/config.fish" "$OH_MY_POSH_THEME"
 else
     printf "Skipping oh-my-posh theme setup because oh-my-posh is not installed.\n\n"
 fi

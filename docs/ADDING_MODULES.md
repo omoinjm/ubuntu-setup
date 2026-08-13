@@ -10,6 +10,8 @@ Each module is a shell script in the `library_scripts/` directory following this
 library_scripts/install-<toolname>.sh
 ```
 
+Not every file in `library_scripts/` is a `run_step`-invoked module, though — `helpers.sh`, `install-plan.sh`, and `install-oh-my-posh.sh` are sourced libraries consumed by other modules (e.g. `install-fish.sh`, `install-zsh.sh`, and `install-bash-enhancements.sh` all source `install-oh-my-posh.sh` for shared prompt-install logic instead of duplicating it).
+
 ## Template for New Modules
 
 ```bash
@@ -145,7 +147,7 @@ bash "$installer_script"
 
 ### Configure with dotfiles
 
-Dotfiles live under `home/.config/<app>` in the repo. After clone, `setup-dotfiles.sh` runs `install/link.sh` to symlink fish, nvim, tmux, and lazygit into `~/.config`. Individual install scripts keep a fallback symlink when `install/link.sh` is missing (legacy `src/config/` layout).
+Dotfiles live under `home/.config/<app>` in the repo. After clone, `setup-dotfiles.sh` runs `install/link.sh` to symlink fish, zsh, nvim, tmux, and lazygit into `~/.config`. Individual install scripts keep a fallback symlink when `install/link.sh` is missing (legacy `src/config/` layout).
 
 ```bash
 refresh_dotfiles_paths

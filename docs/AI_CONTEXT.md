@@ -27,7 +27,7 @@ Essential context for AI systems analyzing, modifying, or extending this codebas
 - **Main script:** `install.sh`
 - **Modules:** `library_scripts/install-<tool>.sh`
 - **Setup scripts:** `library_scripts/setup-<component>.sh`
-- **Helpers:** `library_scripts/helpers.sh`, `library_scripts/install-plan.sh`
+- **Helpers:** `library_scripts/helpers.sh`, `library_scripts/install-plan.sh`, `library_scripts/install-oh-my-posh.sh`
 - **Config:** `library_scripts/config.sh`
 
 ## Code Patterns
@@ -67,15 +67,19 @@ install.sh
   ├─ install-pv.sh              (skips when INSTALL_PV=false)
   ├─ setup-dotfiles.sh
   ├─ install-tmux.sh
-  ├─ install-fish.sh
+  ├─ install-fish.sh            (skips when INSTALL_FISH=false; default true)
   ├─ install-neovim.sh
   ├─ install-nvm.sh
   ├─ install-fzf.sh
   ├─ install-fonts.sh
+  ├─ install-bash-enhancements.sh
+  ├─ install-zsh.sh            (optional; INSTALL_ZSH=true)
   ├─ install-terraform.sh      (optional)
   ├─ install-nebius-cli.sh    (optional)
   └─ install-dotnet.sh        (optional)
 ```
+
+`install-oh-my-posh.sh` is a sourced helper (not a `run_step`), shared by `install-fish.sh`, `install-zsh.sh`, and `install-bash-enhancements.sh` for the oh-my-posh prompt install + per-shell init line.
 
 ## Common Tasks
 

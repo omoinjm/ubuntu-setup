@@ -12,11 +12,11 @@ The `install.sh` script orchestrates the installation and configuration of:
 2. **Pipe viewer (pv)** — Installed by default for enhanced download progress bars
 3. **Dotfiles** — Clones personal configuration files from GitHub
 4. **Terminal multiplexer** — tmux
-5. **Shell** — Fish with oh-my-posh and optional lsd
+5. **Shell** — bash is always enhanced (oh-my-posh, PATH, NVM sourcing); Fish (default-on, oh-my-posh + optional lsd) and Zsh (opt-in, oh-my-posh) are both available, each toggled via `INSTALL_FISH`/`INSTALL_ZSH`
 6. **Editor** — Neovim with common CLI dependencies
 7. **Runtime** — NVM and Node.js LTS
 8. **Productivity** — fzf fuzzy finder and Nerd Fonts
-9. **Optional** — Terraform, Nebius CLI, and .NET SDK when enabled via env vars
+9. **Optional** — Zsh, Terraform, Nebius CLI, and .NET SDK when enabled via env vars
 
 ## Key Features
 

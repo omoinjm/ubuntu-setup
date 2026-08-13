@@ -36,11 +36,17 @@ print_install_plan() {
     _plan_item "Clone dotfiles from ${DOTFILES_REPO:-<not set>}"
     _plan_item "Link dotfiles configs (fish, nvim, tmux, lazygit) into ~/.config"
     _plan_item "Install tmux"
-    _plan_item "Install Fish shell (+ oh-my-posh, lsd when available)"
+    if [ "${INSTALL_FISH:-true}" = "true" ]; then
+        _plan_item "Install Fish shell (+ oh-my-posh, lsd when available)"
+    fi
     _plan_item "Install Neovim and dependencies"
     _plan_item "Install NVM and Node.js LTS"
     _plan_item "Install fzf"
     _plan_item "Install Nerd Font"
+    _plan_item "Enhance bash shell (oh-my-posh prompt, PATH, NVM sourcing)"
+    if [ "${INSTALL_ZSH:-false}" = "true" ]; then
+        _plan_item "Install Zsh shell (+ oh-my-posh)"
+    fi
     if [ "${INSTALL_TERRAFORM:-false}" = "true" ]; then
         _plan_item "Install Terraform"
     fi
@@ -57,9 +63,14 @@ print_install_plan() {
         _plan_item "pv"
     fi
     _plan_item "tmux"
-    _plan_item "fish, unzip"
+    if [ "${INSTALL_FISH:-true}" = "true" ]; then
+        _plan_item "fish, unzip"
+    fi
     _plan_item "lsd (if available in apt)"
     _plan_item "lazygit, gcc, ripgrep, fd-find"
+    if [ "${INSTALL_ZSH:-false}" = "true" ]; then
+        _plan_item "zsh"
+    fi
     if [ "${INSTALL_TERRAFORM:-false}" = "true" ]; then
         _plan_item "gnupg, terraform (via HashiCorp apt repo)"
     fi
@@ -70,7 +81,9 @@ print_install_plan() {
 
     _plan_section "PPAs"
     _plan_item "ppa:git-core/ppa"
-    _plan_item "ppa:fish-shell/release-3"
+    if [ "${INSTALL_FISH:-true}" = "true" ]; then
+        _plan_item "ppa:fish-shell/release-3"
+    fi
     _plan_item "ppa:dotnet/backports"
     if [ "${INSTALL_TERRAFORM:-false}" = "true" ]; then
         _plan_item "HashiCorp apt repository (apt.releases.hashicorp.com)"

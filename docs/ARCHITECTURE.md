@@ -16,7 +16,10 @@ ubuntu-setup/
 │   ├── update-repositories.sh      # Update apt and add PPAs
 │   ├── setup-dotfiles.sh           # Clone dotfiles and run install/link.sh
 │   ├── install-tmux.sh
-│   ├── install-fish.sh
+│   ├── install-fish.sh              # Default-on (INSTALL_FISH=true)
+│   ├── install-zsh.sh               # Optional (INSTALL_ZSH=true)
+│   ├── install-bash-enhancements.sh # Always-on: oh-my-posh, PATH, NVM sourcing for bash
+│   ├── install-oh-my-posh.sh        # Sourced helper (not run_step) shared by fish/zsh/bash
 │   ├── install-neovim.sh
 │   ├── install-nvm.sh
 │   ├── install-fzf.sh
@@ -46,11 +49,13 @@ install.sh (main script)
     ├─→ install-pv.sh                 (if INSTALL_PV=true, default)
     ├─→ setup-dotfiles.sh
     ├─→ install-tmux.sh
-    ├─→ install-fish.sh
+    ├─→ install-fish.sh                (if INSTALL_FISH=true, default)
     ├─→ install-neovim.sh
     ├─→ install-nvm.sh
     ├─→ install-fzf.sh
     ├─→ install-fonts.sh
+    ├─→ install-bash-enhancements.sh
+    ├─→ install-zsh.sh                 (if INSTALL_ZSH=true)
     ├─→ install-terraform.sh          (if INSTALL_TERRAFORM=true)
     ├─→ install-nebius-cli.sh       (if INSTALL_NEBIUS_CLI=true)
     └─→ install-dotnet.sh           (if INSTALL_DOTNET=true)
@@ -60,7 +65,9 @@ Success: All installations complete, log written to ~/.ubuntu-setup-install.log
 
 ## Module Design Pattern
 
-Each installation script in `library_scripts/` follows this pattern:
+Not every file in `library_scripts/` is invoked via `run_step` — `helpers.sh`, `install-plan.sh`, and `install-oh-my-posh.sh` are sourced libraries consumed by other modules, not independent installation steps.
+
+Each `run_step`-invoked installation script in `library_scripts/` follows this pattern:
 
 1. **Load config** — Source `config.sh` for paths and flags
 2. **Check prerequisites** — Verify dependencies are available

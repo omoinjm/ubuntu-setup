@@ -1,8 +1,8 @@
 {
   "name": "Ubuntu Setup",
   "id": "ubuntu-setup",
-  "version": "1.0.0",
-  "description": "Personal Ubuntu development environment setup with Fish shell, Neovim, NVM, fzf, and optional Terraform/Nebius CLI",
+  "version": "1.1.0",
+  "description": "Personal Ubuntu development environment setup with Fish shell, Neovim, NVM, fzf, and optional Zsh/Terraform/Nebius CLI",
   "options": {
     "dotfilesRepo": {
       "type": "string",
@@ -13,6 +13,11 @@
       "type": "boolean",
       "default": true,
       "description": "Install and configure Fish shell"
+    },
+    "installZsh": {
+      "type": "boolean",
+      "default": false,
+      "description": "Install and configure Zsh shell (oh-my-posh prompt)"
     },
     "installNeovim": {
       "type": "boolean",

@@ -51,11 +51,41 @@ sudo apt-get update
 
 ### Fish shell
 
+Fish is default-on (`INSTALL_FISH=true`); set `INSTALL_FISH=false` to skip it.
+
 ```bash
 sudo apt-get remove fish
 ./library_scripts/install-fish.sh
 chsh -s /usr/bin/fish
 ```
+
+### Zsh
+
+Zsh is opt-in (`INSTALL_ZSH=false` by default) — set `INSTALL_ZSH=true` before
+running `install.sh`, or run its module directly:
+
+```bash
+sudo apt-get remove zsh
+INSTALL_ZSH=true ./library_scripts/install-zsh.sh
+chsh -s /usr/bin/zsh
+```
+
+If `chsh` fails with "not listed in /etc/shells", re-run
+`sudo apt-get install --reinstall zsh` (installing the package registers it
+there automatically).
+
+### Bash
+
+Bash itself is never installed or removed (it's Ubuntu's default), but its
+prompt/PATH/NVM setup is always applied idempotently and can be re-run any
+time:
+
+```bash
+./library_scripts/install-bash-enhancements.sh
+```
+
+To remove the oh-my-posh/PATH/NVM lines it adds, edit `~/.bashrc` manually —
+`uninstall.sh` never touches shell rc file contents, only removes packages.
 
 ### Neovim
 

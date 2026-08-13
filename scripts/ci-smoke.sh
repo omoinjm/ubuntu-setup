@@ -31,6 +31,9 @@ required_modules=(
     library_scripts/setup-dotfiles.sh
     library_scripts/install-tmux.sh
     library_scripts/install-fish.sh
+    library_scripts/install-zsh.sh
+    library_scripts/install-bash-enhancements.sh
+    library_scripts/install-oh-my-posh.sh
     library_scripts/install-neovim.sh
     library_scripts/install-nvm.sh
     library_scripts/install-fzf.sh
@@ -61,6 +64,8 @@ test -n "$DOTFILES_DIR"
 test -n "$DOTFILES_REPO"
 test -n "$DOTFILES_CONFIG_DIR"
 test -n "$DOTFILES_FISH_DIR"
+test -n "$DOTFILES_ZSH_DIR"
+test -n "$ZSH_DIR"
 test -n "$DOTFILES_LINUX_SHELL_DIR"
 grep -q 'refresh_dotfiles_paths' library_scripts/config.sh
 grep -q 'install/link.sh' library_scripts/setup-dotfiles.sh
@@ -75,8 +80,21 @@ SHOW_INSTALL_PLAN=true INSTALL_TERRAFORM=false INSTALL_NEBIUS_CLI=false INSTALL_
     print_install_plan >"$plan_file"
 grep -q "Installation Plan" "$plan_file"
 grep -q "tmux" "$plan_file"
+grep -q "Fish shell" "$plan_file"
 rm -f "$plan_file"
-echo "  install plan renders"
+echo "  install plan renders (default: fish on, zsh off)"
+
+plan_file=$(mktemp)
+SHOW_INSTALL_PLAN=true INSTALL_FISH=false INSTALL_ZSH=true \
+INSTALL_TERRAFORM=false INSTALL_NEBIUS_CLI=false INSTALL_DOTNET=false \
+    print_install_plan >"$plan_file"
+grep -q "Zsh shell" "$plan_file"
+if grep -q "Fish shell" "$plan_file"; then
+    echo "Fish shell should not appear in the plan when INSTALL_FISH=false" >&2
+    exit 1
+fi
+rm -f "$plan_file"
+echo "  install plan renders (INSTALL_FISH=false, INSTALL_ZSH=true)"
 
 echo
 echo "==> Progress helpers"

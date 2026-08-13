@@ -59,8 +59,10 @@ This prints the planned steps, apt packages, PPAs, and downloads without making 
 With optional tools:
 
 ```bash
-INSTALL_TERRAFORM=true INSTALL_NEBIUS_CLI=true ./install.sh
+INSTALL_ZSH=true INSTALL_TERRAFORM=true INSTALL_NEBIUS_CLI=true ./install.sh
 ```
+
+Fish is installed by default; skip it with `INSTALL_FISH=false ./install.sh`. bash is always enhanced (oh-my-posh, PATH, NVM sourcing) regardless of these flags.
 
 Custom dotfiles repository:
 
@@ -82,7 +84,8 @@ The script will:
 
 ```bash
 tmux -V
-fish --version
+bash --version
+fish --version          # if INSTALL_FISH=true (default)
 nvim --version
 nvm --version
 node --version
@@ -92,6 +95,7 @@ node --version
 Optional tools:
 
 ```bash
+zsh --version           # if INSTALL_ZSH=true
 terraform --version    # if INSTALL_TERRAFORM=true
 nebius --version       # if INSTALL_NEBIUS_CLI=true
 dotnet --version       # if INSTALL_DOTNET=true
@@ -106,6 +110,8 @@ Environment variables (see `library_scripts/config.sh`):
 | `DOTFILES_REPO` | `https://github.com/omoinjm/.dotfiles.git` | Dotfiles HTTPS URL |
 | `DOTFILES_OPTIONAL` | `false` | Continue if dotfiles clone fails |
 | `INSTALL_PV` | `true` | Install `pv` for enhanced download progress bars |
+| `INSTALL_FISH` | `true` | Install and configure Fish shell |
+| `INSTALL_ZSH` | `false` | Install and configure Zsh shell |
 | `INSTALL_TERRAFORM` | `false` | Install Terraform |
 | `INSTALL_NEBIUS_CLI` | `false` | Install Nebius CLI |
 | `INSTALL_DOTNET` | `false` | Install .NET SDK |
@@ -146,10 +152,11 @@ This removes installed tools but preserves config directories and dotfiles unles
 
 ## Post-Installation
 
-1. **Set Fish as default shell:**
+1. **Set your preferred shell as default** (bash needs no `chsh`, it's already enhanced automatically):
 
    ```bash
-   chsh -s /usr/bin/fish
+   chsh -s /usr/bin/fish   # if INSTALL_FISH=true (default)
+   chsh -s /usr/bin/zsh    # if INSTALL_ZSH=true
    ```
 
 2. **Log out and back in** for shell and PATH changes to apply

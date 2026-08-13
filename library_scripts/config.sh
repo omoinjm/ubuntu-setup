@@ -11,6 +11,7 @@ export BIN_DIR="${BIN_DIR:-${HOME}/.local/bin}"
 
 # Tool-specific configuration directories
 export FISH_DIR="${FISH_DIR:-$CONFIG_DIR/fish}"
+export ZSH_DIR="${ZSH_DIR:-$CONFIG_DIR/zsh}"
 export TMUX_DIR="${TMUX_DIR:-$CONFIG_DIR/tmux}"
 export NEOVIM_DIR="${NEOVIM_DIR:-$CONFIG_DIR/nvim}"
 export LAZYGIT_DIR="${LAZYGIT_DIR:-$CONFIG_DIR/lazygit}"
@@ -30,6 +31,8 @@ export SHOW_INSTALL_COMMANDS="${SHOW_INSTALL_COMMANDS:-true}"
 
 # Optional tools (set to "true" to install)
 export INSTALL_PV="${INSTALL_PV:-true}"
+export INSTALL_FISH="${INSTALL_FISH:-true}"
+export INSTALL_ZSH="${INSTALL_ZSH:-false}"
 export INSTALL_TERRAFORM="${INSTALL_TERRAFORM:-false}"
 export INSTALL_NEBIUS_CLI="${INSTALL_NEBIUS_CLI:-false}"
 export INSTALL_DOTNET="${INSTALL_DOTNET:-false}"
@@ -48,6 +51,7 @@ refresh_dotfiles_paths() {
 
     export DOTFILES_CONFIG_DIR="$config_base"
     export DOTFILES_FISH_DIR="$config_base/fish"
+    export DOTFILES_ZSH_DIR="$config_base/zsh"
     export DOTFILES_NEOVIM_DIR="$config_base/nvim"
     export DOTFILES_TMUX_DIR="$config_base/tmux"
     export DOTFILES_LAZYGIT_DIR="$config_base/lazygit"
