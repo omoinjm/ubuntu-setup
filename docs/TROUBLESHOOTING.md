@@ -59,9 +59,22 @@ chsh -s /usr/bin/fish
 
 ### Neovim
 
+Neovim is downloaded from the official GitHub release (not apt), since apt's
+version varies by distro/architecture and is often too old for plugin
+managers like lazy.nvim (requires >= 0.8.0).
+
 ```bash
-sudo apt-get update
-sudo apt-get install -y neovim
+./library_scripts/install-neovim.sh
+ls -la ~/.local/opt/nvim   # extracted release
+ls -la ~/.local/bin/nvim   # symlink to the binary
+nvim --version
+```
+
+If `nvim --version` shows an old version, another `nvim` earlier in your
+`PATH` (e.g. an apt-installed one from `/usr/bin`) is shadowing it — check
+with `which -a nvim` and ensure `~/.local/bin` comes first in `PATH`.
+
+```bash
 ls ~/.config/nvim
 ./library_scripts/setup-dotfiles.sh
 ```

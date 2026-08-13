@@ -27,11 +27,6 @@ add_git_ppa() {
     with_spinner "Adding Git PPA" sudo add-apt-repository -y ppa:git-core/ppa
 }
 
-add_neovim_ppa() {
-    echo "Adding Neovim PPA..."
-    with_spinner "Adding Neovim PPA" sudo add-apt-repository -y ppa:neovim-ppa/stable
-}
-
 add_fish_ppa() {
     echo "Adding Fish shell PPA..."
     with_spinner "Adding Fish shell PPA" sudo add-apt-repository -y ppa:fish-shell/release-3
@@ -55,7 +50,6 @@ install_prerequisites
 
 # Add PPAs for various tools
 add_git_ppa
-add_neovim_ppa
 add_fish_ppa
 add_dotnet_ppa
 

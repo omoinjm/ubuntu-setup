@@ -59,7 +59,7 @@ print_install_plan() {
     _plan_item "tmux"
     _plan_item "fish, unzip"
     _plan_item "lsd (if available in apt)"
-    _plan_item "neovim, lazygit, gcc, ripgrep, fd-find"
+    _plan_item "lazygit, gcc, ripgrep, fd-find"
     if [ "${INSTALL_TERRAFORM:-false}" = "true" ]; then
         _plan_item "gnupg, terraform (via HashiCorp apt repo)"
     fi
@@ -70,7 +70,6 @@ print_install_plan() {
 
     _plan_section "PPAs"
     _plan_item "ppa:git-core/ppa"
-    _plan_item "ppa:neovim-ppa/stable"
     _plan_item "ppa:fish-shell/release-3"
     _plan_item "ppa:dotnet/backports"
     if [ "${INSTALL_TERRAFORM:-false}" = "true" ]; then
@@ -79,6 +78,7 @@ print_install_plan() {
 
     _plan_section "Downloads and remote installers"
     _plan_item "Dotfiles: ${DOTFILES_REPO}"
+    _plan_item "Neovim v0.12.4 (github.com/neovim/neovim releases)"
     _plan_item "NVM v0.40.4 (github.com/nvm-sh/nvm)"
     _plan_item "Node.js LTS (via nvm install --lts)"
     _plan_item "fzf v0.70.0 (github.com/junegunn/fzf releases)"

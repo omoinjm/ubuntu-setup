@@ -14,9 +14,18 @@ if [ -f "$ROOT_DIR/library_scripts/config.sh" ]; then
 else
     CONFIG_DIR="${HOME}/.config"
     NEOVIM_DIR="$CONFIG_DIR/nvim"
+    BIN_DIR="${HOME}/.local/bin"
 fi
 # shellcheck source=library_scripts/helpers.sh
 source "$ROOT_DIR/library_scripts/helpers.sh"
+
+# Neovim version to install (pinned for reproducibility). Installed from the
+# official GitHub release rather than apt/the neovim-ppa/stable PPA: apt's
+# version varies wildly by distro release and architecture (e.g. older
+# Ubuntu releases and some arm64 containers fall back to versions < 0.8.0),
+# which breaks plugin managers like lazy.nvim that require >= 0.8.0.
+NEOVIM_VERSION="v0.12.4"
+NEOVIM_INSTALL_DIR="${NEOVIM_INSTALL_DIR:-$HOME/.local/opt/nvim}"
 
 echo "Installing Neovim and dependencies..."
 
@@ -65,20 +74,89 @@ fi
 
 printf "\n"
 
-# Check if neovim is installed
-if ! command -v nvim &>/dev/null; then
-    printf "neovim not found. Installing...\n"
-    run_apt "Installing Neovim" -qq install -y neovim
-    printf "neovim successfully installed.\n\n"
+# -----------------------------------------------------------------------------
+# Function: detect_nvim_arch
+# Description: Map `uname -m` to the architecture suffix used in Neovim's
+#              GitHub release asset names (nvim-linux-<arch>.tar.gz)
+# Returns: 0 on success (prints arch), 1 for unsupported architectures
+# -----------------------------------------------------------------------------
+detect_nvim_arch() {
+    local machine
+    machine="$(uname -m)"
+    case "$machine" in
+        x86_64|amd64) echo "x86_64" ;;
+        aarch64|arm64) echo "arm64" ;;
+        *)
+            echo "Error: Unsupported architecture for Neovim: $machine" >&2
+            return 1
+            ;;
+    esac
+}
+
+# -----------------------------------------------------------------------------
+# Function: installed_nvim_version
+# Description: Print the version of the Neovim binary managed by this script
+# Returns: 0 and prints version if present, 1 otherwise
+# -----------------------------------------------------------------------------
+installed_nvim_version() {
+    [ -x "$NEOVIM_INSTALL_DIR/bin/nvim" ] || return 1
+    "$NEOVIM_INSTALL_DIR/bin/nvim" --version 2>/dev/null | head -1 | awk '{print $2}'
+}
+
+# -----------------------------------------------------------------------------
+# Function: download_nvim
+# Description: Download and extract the pinned Neovim release, then symlink
+#              the binary into $BIN_DIR
+# Returns: 0 on success, 1 on failure
+# -----------------------------------------------------------------------------
+download_nvim() {
+    local arch temp_dir archive_name download_url
+    temp_dir=$(mktemp -d)
+    arch=$(detect_nvim_arch) || { rm -rf "$temp_dir"; return 1; }
+    archive_name="nvim-linux-${arch}.tar.gz"
+    download_url="https://github.com/neovim/neovim/releases/download/${NEOVIM_VERSION}/${archive_name}"
+
+    if ! run_download "Downloading Neovim ${NEOVIM_VERSION}" "$download_url" "$temp_dir/$archive_name"; then
+        echo "Error: Failed to download Neovim from GitHub"
+        rm -rf "$temp_dir"
+        return 1
+    fi
+
+    if ! tar -xzf "$temp_dir/$archive_name" -C "$temp_dir"; then
+        echo "Error: Failed to extract Neovim archive"
+        rm -rf "$temp_dir"
+        return 1
+    fi
+
+    rm -rf "$NEOVIM_INSTALL_DIR"
+    mkdir -p "$(dirname "$NEOVIM_INSTALL_DIR")"
+    mv "$temp_dir/nvim-linux-${arch}" "$NEOVIM_INSTALL_DIR"
+    rm -rf "$temp_dir"
+
+    mkdir -p "$BIN_DIR"
+    ln -sf "$NEOVIM_INSTALL_DIR/bin/nvim" "$BIN_DIR/nvim"
+}
+
+# Install (or replace a stale) Neovim if it doesn't match the pinned version
+if [ "$(installed_nvim_version)" = "$NEOVIM_VERSION" ]; then
+    printf "neovim is already installed: %s\n\n" "$NEOVIM_VERSION"
 else
-    nvim_version=$(nvim --version 2>/dev/null | head -1 || echo "unknown")
-    printf "neovim is already installed: %s\n\n" "$nvim_version"
+    printf "Installing Neovim %s...\n" "$NEOVIM_VERSION"
+    if ! download_nvim; then
+        echo "Error: Neovim installation failed."
+        exit 1
+    fi
+    printf "neovim %s successfully installed to %s\n\n" "$NEOVIM_VERSION" "$NEOVIM_INSTALL_DIR"
 fi
 
 # Verify installation
-if ! nvim --version &>/dev/null; then
+if ! "$BIN_DIR/nvim" --version &>/dev/null; then
     echo "Error: Neovim installation verification failed."
     exit 1
+fi
+
+if ! command -v nvim &>/dev/null; then
+    printf "Note: %s is not on your PATH yet. Add it, e.g.: export PATH=\"%s:\$PATH\"\n" "$BIN_DIR" "$BIN_DIR"
 fi
 
 # Create config directory if it doesn't exist
