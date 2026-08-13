@@ -117,7 +117,7 @@ setup_zsh_local_bin_path() {
         } >> "$ZSHRC"
         printf "Added ~/.local/bin to PATH in ~/.zshrc\n"
     else
-        printf "~/.local/bin already on PATH in ~/.zshrc\n"
+        printf "PATH already includes ~/.local/bin in ~/.zshrc\n"
     fi
 }
 

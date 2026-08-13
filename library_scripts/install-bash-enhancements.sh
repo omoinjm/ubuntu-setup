@@ -42,7 +42,7 @@ setup_bash_local_bin_path() {
         } >> "$BASH_RC"
         printf "Added ~/.local/bin to PATH in ~/.bashrc\n"
     else
-        printf "~/.local/bin already on PATH in ~/.bashrc\n"
+        printf "PATH already includes ~/.local/bin in ~/.bashrc\n"
     fi
 }
 
