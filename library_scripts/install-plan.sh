@@ -91,7 +91,7 @@ print_install_plan() {
 
     _plan_section "Downloads and remote installers"
     _plan_item "Dotfiles: ${DOTFILES_REPO}"
-    _plan_item "Neovim v0.12.4 (github.com/neovim/neovim releases)"
+    _plan_item "Neovim v0.12.5 (github.com/neovim/neovim releases)"
     _plan_item "NVM v0.40.4 (github.com/nvm-sh/nvm)"
     _plan_item "Node.js LTS (via nvm install --lts)"
     _plan_item "fzf v0.70.0 (github.com/junegunn/fzf releases)"

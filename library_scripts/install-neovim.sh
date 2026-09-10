@@ -24,7 +24,7 @@ source "$ROOT_DIR/library_scripts/helpers.sh"
 # version varies wildly by distro release and architecture (e.g. older
 # Ubuntu releases and some arm64 containers fall back to versions < 0.8.0),
 # which breaks plugin managers like lazy.nvim that require >= 0.8.0.
-NEOVIM_VERSION="v0.12.4"
+NEOVIM_VERSION="v0.12.5"
 NEOVIM_INSTALL_DIR="${NEOVIM_INSTALL_DIR:-$HOME/.local/opt/nvim}"
 
 echo "Installing Neovim and dependencies..."
